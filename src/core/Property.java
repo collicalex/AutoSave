@@ -326,13 +326,6 @@ public class Property implements Logger {
     	}
     	
     	_totlaNewFilesSaved++;
-    	
-    	try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
     }	
 
     private void closeChannel(FileChannel channel) {

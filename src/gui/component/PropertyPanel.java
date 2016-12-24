@@ -212,11 +212,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 
 	@Override
 	public void ioOperationOneFileProcessed(Property property) {
-		System.out.println(property.getTotalBackupedSrcFiles());
-		System.out.println(property.getTotalSrcFiles());
 		double ratio = (double)property.getTotalBackupedSrcFiles() / (double)property.getTotalSrcFiles();
-		System.out.println((int)(ratio * 100.));
-		System.out.println("---------------------------------------------------");
 		_progressBar.setValue((int)(ratio * 100.));
 	}
 

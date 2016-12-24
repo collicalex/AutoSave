@@ -153,8 +153,6 @@ public class About extends JDialog {
 			g2d.setColor(Color.WHITE);
 			g2d.fillRect(0, 0, getWidth(), getHeight());
 			
-			System.out.println(getWidth() + " " + getHeight());
-			
 			//logo
 			int offsetX = (int)(0.5 + (getWidth() - Logo.getInstance().getLogo().getWidth(null)) / 2.);
 			int offsetY = (int)(0.5 + (getHeight() - Logo.getInstance().getLogo().getHeight(null)) / 2.);
