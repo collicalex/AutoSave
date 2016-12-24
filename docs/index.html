@@ -1,0 +1,99 @@
+<html>
+<head>
+
+	<!-- Metas tag -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+
+	<!-- Descripcion -->
+	<meta name="author" content="Alexandre Bargeton">
+	<meta name="description" content="AutoSave : a backup software.">
+
+	<!-- CSS -->
+	<link rel="stylesheet" type="text/css" href="css/siimple.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	
+
+	
+	
+
+</head>
+<body>
+
+	<!-- Navbar -->
+	<div class="navbar">
+		<a href="./" class="navbar-logo">AutoSave</a>
+	</div>
+
+
+<!-- Title -->
+<title>AutoSave</title>
+
+<!-- Grid main -->
+<div class="grid main">
+
+	<!-- Getting started title -->
+	<h1>AutoSave</h1>
+	
+	<!-- Description -->
+	<h2>Description</h2>
+	<p>AutoSave is a simple <a href='https://en.wikipedia.org/wiki/Portable_application'>portable application</a> to automatically save (backup) your computer files to your external storage drive.</p>
+	<p>It does only <a href='https://en.wikipedia.org/wiki/Incremental_backup'>incremental backup</a>: all new files will be saved; but files which do not more exist on your local computer will not be deleted from the backup (usb drive).</p> 
+
+	<!-- Download -->
+	<h2>Download</h2>
+	<p>You can download the latest version of AutoSave in the dedicated <a href='https://github.com/collicalex/AutoSave/releases'>releases page</a>.
+	
+	<!-- Pre Requirement -->
+	<h2>Pre Requirement</h2>
+	<p>AutoSave is written in JAVA. So it's natively executable on all Operating System (Windows, OsX, Unix/Linux,...). You just need to have a JRE (Java Runtime Environement) installed on your system. Download it <a href='https://www.java.com/download'>here</a>.</p>
+	
+	<!-- How it works? -->
+	<h2>How to use it</h2>
+	<p>1: Just put the <i>autosave.jar</i> file where you wan (internal, external drive).</p>
+	<p>2: Run it! (double click on it).</p>
+	<p>3: At the first use, you have to configure which folders you want to backup. For that, use the left panel of the application window.</p>
+	<p><img src='img/autosave1.png'  width='975px' height='731px'/></p>
+	<p>3.1: By default, the application will automatically load the "autosave.ini" configuration file at startup (in the same folder of "autosave.jar" file). So save your file as this to auto use it</p>
+	<p>3.2: As you can see, the application manage both <a href='https://en.wikipedia.org/wiki/Path_(computing)#Absolute_and_relative_paths'>absolute path and relative path</a> (relative to the autosave.jar file).</p>
+	<p>4: Then either you can run bakcup of only one specific entry ('run backup' button in each entry), either bakcup all entries (button at the bottom left of the application).</p>
+	<p>5: All backup operation will be log into the log part of the application (right part).</p>
+	<p><img src='img/autosave2.png'  width='975px' height='731px'/></p>
+	
+	<!-- How it works? -->
+	<h2>How I use it</h2>
+	<p>
+		<ol>
+			<li>I've put the <i>autosave.jar</i> in my dedicated external usb disc (in root).</li><br>
+			<li>I've configured it with absolute path for source directories, but with relative path for destination.<br>Because, my local drive will never change its letter. But my operating system will attribute a "random" letter for my usb drive. The first one connected will be "E:", then the second one "F:"... So if I've already connected a usb key, then my backup usb drive; will have letter F:, but if I've connected it alone, it will have letter E:. And so, with absolute path, it will not work!</li>
+		</ol>
+	</p>
+	
+	<!-- Contribute -->
+	<h2>Want to contribute?</h2>
+	
+	<p>You can contribute with AutopSave by <a href='https://github.com/collicalex/AutoSave/releases'>installing it</a>, using it, take a look at its <a href='https://github.com/collicalex/AutoSave'>source code</a> and <a href='https://github.com/collicalex/AutoSave/issues'>submitting issues</a> and <a href='https://github.com/collicalex/AutoSave/pulls'>pull requests</a> :)</p>
+  
+  
+    <!-- Tutorial -->
+	<h2>Follow me</h2>
+	
+	<p>You can follow me:
+		<ul>
+			<li>as photographer on <a href='https://www.flickr.com/photos/colliculus'>Flickr</a></li>
+			<li>as developer on <a href='https://github.com/collicalex'>GitHub</a></li>
+		</ul>
+	</p>
+
+  
+<!-- Close the grid main -->
+</div>
+
+
+<!-- Foot -->
+<div class="foot" align="center">
+AutoSave made by <a href="https://www.flickr.com/photos/colliculus">Alexandre Bargeton</a>.
+</div>
+
+</body>
+</head>
