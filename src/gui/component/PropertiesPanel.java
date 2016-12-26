@@ -79,7 +79,7 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 		
 		loadConfigFile(new File("autosave.ini"));
 		
-		this.setPreferredSize(new Dimension(350,600));
+		this.setPreferredSize(new Dimension(400,600));
 	}
 	
 	//-------------------------------------------------------------------------

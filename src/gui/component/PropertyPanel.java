@@ -8,15 +8,21 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import core.Property;
@@ -34,6 +40,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 	private JTextField2 _src;
 	private JTextField2 _dst;
 	private JComboBox<Boolean> _recur;
+	private DefaultListModel _ignoredList;
 	
 	private JButton _deleteButton;
 	private JButton _srcBrowseButton;
@@ -57,6 +64,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 				_listen = true;
 			}
 		});
+		
 		
 		_deleteButton = new JButton("X");
 		_deleteButton.addActionListener(new ActionListener() {
@@ -121,17 +129,25 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 		
 		_entry = new JLabel("Entry:");
 		
-		this.setLayout(new GridLayout(5, 1));
-		this.add(createPanel(_entry, null, _deleteButton));
-		this.add(createPanel("Source", _src, _srcBrowseButton));
-		this.add(createPanel("Destination", _dst, _dstBrowseButton));
-		this.add(createPanel("Recursive", _recur, null));
-		this.add(createPanel("Progress", _progressBar, _backupButton));
+		List<JComponent> components = new LinkedList<JComponent>();
+		components.add(createPanel(_entry, null, _deleteButton));
+		components.add(createPanel("Source", _src, _srcBrowseButton));
+		components.add(createPanel("Destination", _dst, _dstBrowseButton));
+		components.add(createPanel("Recursive", _recur, null));
+		components.add(createPanelIgnoredList());
+		components.add(createPanel("Progress", _progressBar, _backupButton));
+		
+		this.setLayout(new BorderLayout());
+		this.add(GuiUtils.stackNorth(components), BorderLayout.NORTH);
 		
 		_property = property;
 		this.propertyUpdate(property);
 		_property.addListener(this);
 	}
+	
+	
+
+	
 	
 	private JPanel createPanel(String caption, JComponent component, JButton button) {
 		JLabel label = new JLabel(caption + ":");
@@ -151,9 +167,40 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			panel.add(component, BorderLayout.CENTER);	
 		}
 		if (button != null) {
+			//button.setPreferredSize(new Dimension(60,25));
 			panel.add(button, BorderLayout.EAST);
 		}
 		return panel;
+	}
+	
+	private JPanel createPanelIgnoredList() {
+		_ignoredList = new DefaultListModel<String>();
+		JList<String> ignoredList = new JList<String>(_ignoredList);
+		ignoredList.setVisibleRowCount(1);
+		JScrollPane scrollPane = new JScrollPane(ignoredList);
+		
+		JLabel label = new JLabel("Ignored:");
+		label.setPreferredSize(new Dimension(75, 20));
+		JPanel labelPanel = new JPanel(new BorderLayout());
+		labelPanel.add(label, BorderLayout.NORTH);
+		
+		JButton addButton = new JButton("+");
+		JButton remButton = new JButton("-");
+		
+		//addButton.setPreferredSize(new Dimension(60,25));
+		//remButton.setPreferredSize(new Dimension(60,25));
+		
+		JPanel buttonsPanel = new JPanel(new GridLayout(2, 1));
+		buttonsPanel.add(addButton);
+		buttonsPanel.add(remButton);
+		JPanel buttonsPanelNorth = new JPanel(new BorderLayout());
+		buttonsPanelNorth.add(buttonsPanel, BorderLayout.NORTH);
+		
+		JPanel contentPanel = new JPanel(new BorderLayout());
+		contentPanel.add(labelPanel, BorderLayout.WEST);
+		contentPanel.add(scrollPane, BorderLayout.CENTER);
+		contentPanel.add(buttonsPanelNorth, BorderLayout.EAST);
+		return contentPanel;
 	}
 	
 	@Override

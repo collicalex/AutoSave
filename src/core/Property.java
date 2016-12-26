@@ -15,6 +15,7 @@ public class Property implements Logger {
 	private String _src = "";
 	private String _dst = "";
 	private boolean _recur = true;
+	private List<String> _ignored;
 	
 	private List<PropertyListener> _listeners;
 	
@@ -25,6 +26,7 @@ public class Property implements Logger {
 	public Property(Properties properties) {
 		_properties = properties;
 		_listeners = new LinkedList<PropertyListener>();
+		_ignored = new LinkedList<String>();
 	}
 	
 	//-------------------------------------------------------------------------
@@ -120,6 +122,8 @@ public class Property implements Logger {
 			setDestination(value);
 		} else if (key.compareTo("recur") == 0) {
 			setRecursive(value);
+		} else if (key.compareTo("ignore") == 0) {
+			addToIgnoreList(value);
 		} else {
 			throw new IOException("Wrong property key '" + key + "'");
 		}
@@ -156,6 +160,12 @@ public class Property implements Logger {
 		setRecursive(str2bool(value));
 	}
 	
+	public void addToIgnoreList(String value) {
+		if (_ignored.contains(value) == false) {
+			_ignored.add(value);
+		}
+	}
+	
 	public String getSource() {
 		return _src;
 	}
@@ -166,6 +176,10 @@ public class Property implements Logger {
 	
 	public boolean getRecursive() {
 		return _recur;
+	}
+	
+	public boolean isIgnored(String path) {
+		return _ignored.contains(path);
 	}
 	
 	private String bool2str(boolean bool) {
@@ -250,6 +264,9 @@ public class Property implements Logger {
 	
 	private long nb_files(File file) {
 		long res = 0;
+		if (isIgnored(file.getAbsolutePath())) {
+			return res;
+		}		
 		if (file.exists()) {
 			if (file.isDirectory()) {
 				File[] files = file.listFiles();
@@ -268,6 +285,10 @@ public class Property implements Logger {
 	}
 	
 	private void save_files(File src, File dst) {
+	    if (isIgnored(src.getAbsolutePath())) {
+	    	log("Ignoring " + src.getAbsolutePath());
+	    	return;
+	    }		
 		log("Saving " + src.getAbsolutePath() + "\n");
 		if (src.exists()) {
 			if (src.isDirectory()) {

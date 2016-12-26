@@ -1,7 +1,11 @@
 package gui;
 
+import java.awt.BorderLayout;
 import java.awt.Container;
+import java.util.List;
 
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -25,5 +29,17 @@ public class GuiUtils {
     		container = container.getParent();
     	}
     	return container;
-    }	
+    }
+    
+	public static JPanel stackNorth(List<JComponent> components) {
+		JPanel last = new JPanel(new BorderLayout());
+		JPanel first = last;
+		for (JComponent jComponent : components) {
+			last.add(jComponent, BorderLayout.NORTH);
+			JPanel tmp = new JPanel(new BorderLayout());
+			last.add(tmp, BorderLayout.CENTER);
+			last = tmp;
+		}
+		return first;
+	}    
 }
