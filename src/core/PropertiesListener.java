@@ -2,8 +2,6 @@ package core;
 
 public interface PropertiesListener {
 	
-	public String getID();
-	
 	public void propertiesLoad(Properties properties);
 	public void propertiesAddProperty(Properties properties, Property property);
 	public void propertiesRemProperty(Properties properties, Property property);

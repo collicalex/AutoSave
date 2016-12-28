@@ -2,8 +2,6 @@ package core;
 
 public interface PropertyListener {
 	
-	public String getID();
-	
 	public void propertyUpdate(Property property);
 	public void ioOperationStart(Property property);
 	public void ioOperationCountSrcFilesDone(Property property);

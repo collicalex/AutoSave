@@ -1,11 +1,13 @@
 package gui.component;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -45,7 +47,15 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 		_nbFilesToCopy = new JLabel("", SwingConstants.RIGHT);
 		_nbFilesProcessed = new JLabel("", SwingConstants.RIGHT);
 		_nbFilesNew = new JLabel("", SwingConstants.RIGHT);
-		JPanel leftPanel = new JPanel(new GridLayout(3, 2));
+		JPanel leftPanel = new JPanel(new GridLayout(4, 2));
+		
+		JCheckBox simuMode = new JCheckBox();
+		simuMode.setBorder(null);
+		
+		
+		leftPanel.add(createCaption("Simulation mode"));
+		leftPanel.add(simuMode);
+		
 		leftPanel.add(createCaption("Source files"));
 		leftPanel.add(_nbFilesToCopy);
 		leftPanel.add(createCaption("Processed files"));
@@ -57,11 +67,15 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 		_startTime = new JLabel("", SwingConstants.RIGHT);
 		_endTime = new JLabel("", SwingConstants.RIGHT);
 		_ellapsedTime = new JLabel("", SwingConstants.RIGHT);
-		JPanel rightPanel = new JPanel(new GridLayout(3, 2));
+		JPanel rightPanel = new JPanel(new GridLayout(4, 2));
 		rightPanel.add(createCaption("Start time"));
 		rightPanel.add(_startTime);
 		rightPanel.add(createCaption("Elapsed time"));
 		rightPanel.add(_ellapsedTime);
+		
+		rightPanel.add(createCaption("Remaining time"));
+		rightPanel.add(new JLabel(""));
+		
 		_endTilmeLabel = createCaption("End time (estimated)"); 
 		rightPanel.add(_endTilmeLabel);
 		rightPanel.add(_endTime);
@@ -87,7 +101,7 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 
 	
 	private JLabel createCaption(String caption) {
-		JLabel label = new JLabel(caption + ":  ");
+		JLabel label = new JLabel(caption + " :  ", SwingConstants.RIGHT);
 		Font f = label.getFont();
 		label.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
 		return label;
@@ -236,4 +250,5 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 	public void propertiesSave(Properties properties) {
 	}
 
+	
 }

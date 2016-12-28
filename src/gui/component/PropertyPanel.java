@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,7 +24,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import core.Property;
@@ -40,12 +41,13 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 	private JTextField2 _src;
 	private JTextField2 _dst;
 	private JComboBox<Boolean> _recur;
-	private DefaultListModel _ignoredList;
+	private DefaultListModel<String> _ignoredList;
 	
 	private JButton _deleteButton;
 	private JButton _srcBrowseButton;
 	private JButton _dstBrowseButton;
 	private JButton _backupButton;
+	private JButton _removeFromIgnoreListButton;
 	
 	private JProgressBar _progressBar;
 	
@@ -86,7 +88,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			    chooser.setDialogTitle("Select source directory");
 			    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			    chooser.setAcceptAllFileFilterUsed(false);
-			    if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) { 
+			    if (chooser.showOpenDialog(GuiUtils.getOldestParent(_srcBrowseButton)) == JFileChooser.APPROVE_OPTION) { 
 			    	_src.setText(chooser.getSelectedFile().getAbsolutePath());
 			    }
 			}
@@ -102,7 +104,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			    chooser.setDialogTitle("Select destination directory");
 			    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			    chooser.setAcceptAllFileFilterUsed(false);
-			    if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) { 
+			    if (chooser.showOpenDialog(GuiUtils.getOldestParent(_dstBrowseButton)) == JFileChooser.APPROVE_OPTION) { 
 			    	_dst.setText(chooser.getSelectedFile().getAbsolutePath());
 			    }
 			}
@@ -145,10 +147,6 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 		_property.addListener(this);
 	}
 	
-	
-
-	
-	
 	private JPanel createPanel(String caption, JComponent component, JButton button) {
 		JLabel label = new JLabel(caption + ":");
 		label.setPreferredSize(new Dimension(75, 1));
@@ -167,7 +165,6 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			panel.add(component, BorderLayout.CENTER);	
 		}
 		if (button != null) {
-			//button.setPreferredSize(new Dimension(60,25));
 			panel.add(button, BorderLayout.EAST);
 		}
 		return panel;
@@ -175,6 +172,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 	
 	private JPanel createPanelIgnoredList() {
 		_ignoredList = new DefaultListModel<String>();
+		
 		JList<String> ignoredList = new JList<String>(_ignoredList);
 		ignoredList.setVisibleRowCount(1);
 		JScrollPane scrollPane = new JScrollPane(ignoredList);
@@ -185,14 +183,48 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 		labelPanel.add(label, BorderLayout.NORTH);
 		
 		JButton addButton = new JButton("+");
-		JButton remButton = new JButton("-");
+		_removeFromIgnoreListButton = new JButton("-");
 		
-		//addButton.setPreferredSize(new Dimension(60,25));
-		//remButton.setPreferredSize(new Dimension(60,25));
+		addButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser(); 
+			    chooser.setCurrentDirectory(new File(_src.getText()));
+			    chooser.setDialogTitle("Select ignoring directory or file");
+			    chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+			    chooser.setAcceptAllFileFilterUsed(false);
+			    if (chooser.showOpenDialog(GuiUtils.getOldestParent(addButton)) == JFileChooser.APPROVE_OPTION) {
+			    	
+			    	boolean showWarningMessage = false;
+			    	if (_recur.getSelectedItem() == Boolean.FALSE) {
+			    		showWarningMessage = (chooser.getSelectedFile().getParentFile().compareTo(new File(_src.getText())) != 0);
+			    	} else {
+			    		showWarningMessage = (isChild(_src.getText(), chooser.getSelectedFile().getAbsolutePath()) == false);
+			    	}
+			    	
+			    	if (showWarningMessage == true) {
+			    		if (chooser.getSelectedFile().isDirectory()) {
+			    			JOptionPane.showMessageDialog(GuiUtils.getOldestParent(addButton), "Selected directory is not a sub directory of source one!", "Warning", JOptionPane.WARNING_MESSAGE);
+			    		} else {
+			    			JOptionPane.showMessageDialog(GuiUtils.getOldestParent(addButton), "Selected file to ignore is not inside the source directory one (or inside one of its sub folder)!", "Warning", JOptionPane.WARNING_MESSAGE);
+			    		}
+			    	} 
+			    	_property.addToIgnoreList(chooser.getSelectedFile().getAbsolutePath());			    	
+			    }
+			}
+		});
+		
+		_removeFromIgnoreListButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_property.removeFromIgnoreList(ignoredList.getSelectedValue());
+			}
+		});
 		
 		JPanel buttonsPanel = new JPanel(new GridLayout(2, 1));
 		buttonsPanel.add(addButton);
-		buttonsPanel.add(remButton);
+		buttonsPanel.add(_removeFromIgnoreListButton);
 		JPanel buttonsPanelNorth = new JPanel(new BorderLayout());
 		buttonsPanelNorth.add(buttonsPanel, BorderLayout.NORTH);
 		
@@ -210,6 +242,11 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			_src.notifyListeners();
 			_dst.setText(property.getDestination());
 			_recur.setSelectedItem(property.getRecursive());
+			_ignoredList.removeAllElements();
+			for (String ignored : property.getIgnoredList()) {
+				_ignoredList.addElement(ignored);
+			}
+			_removeFromIgnoreListButton.setEnabled(property.getIgnoredList().size() > 0);
 		}
 	}
 
@@ -278,10 +315,10 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 		_progressBar.setValue(100);
 	}
 
-	
-	@Override
-	public String getID() {
-		return "PropertyPanel";
+	private boolean isChild(String parentText, String childText) {
+		Path child = Paths.get(childText).toAbsolutePath();
+	    Path parent = Paths.get(parentText).toAbsolutePath();
+	    return child.startsWith(parent);
 	}
-
+	
 }

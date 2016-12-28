@@ -334,11 +334,6 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	}	
 
 	@Override
-	public String getID() {
-		return "PropertiesPanel";
-	}
-
-	@Override
 	public void applicationClosing() {
 		if (isSaveNeeded()) {
 			int result = JOptionPane.showConfirmDialog (GuiUtils.getOldestParent(this), "Configuiration have changed!\nDo you want to save it?", "Warning", JOptionPane.YES_NO_OPTION);

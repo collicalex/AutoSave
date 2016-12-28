@@ -163,6 +163,14 @@ public class Property implements Logger {
 	public void addToIgnoreList(String value) {
 		if (_ignored.contains(value) == false) {
 			_ignored.add(value);
+			notifyListerners_propertyUpdate();
+		}
+	}
+	
+	public void removeFromIgnoreList(String value) {
+		if (_ignored.contains(value) == true) {
+			_ignored.remove(value);
+			notifyListerners_propertyUpdate();
 		}
 	}
 	
@@ -180,6 +188,10 @@ public class Property implements Logger {
 	
 	public boolean isIgnored(String path) {
 		return _ignored.contains(path);
+	}
+	
+	public List<String> getIgnoredList() {
+		return _ignored;
 	}
 	
 	private String bool2str(boolean bool) {
@@ -204,6 +216,9 @@ public class Property implements Logger {
 		sb.append("src=" + this.getSource() + "\n");
 		sb.append("dst=" + this.getDestination() + "\n");
 		sb.append("recur=" + bool2str(this.getRecursive()) + "\n");
+		for (String ignored : _ignored) {
+			sb.append("ignore=" + ignored + "\n");	
+		}
 		return sb.toString();
 	}
 	

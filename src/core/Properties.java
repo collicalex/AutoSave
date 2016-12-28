@@ -309,10 +309,4 @@ public class Properties implements Logger, PropertyListener {
 		}
 	}
 
-	@Override
-	public String getID() {
-		return "Properties";
-	}
-
-
 }
