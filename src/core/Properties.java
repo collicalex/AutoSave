@@ -10,21 +10,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-public class Properties implements Logger, PropertyListener {
+public class Properties extends LoggerAdapter implements PropertyListener {
 	
 	private Vector<Property> _properties = new Vector<Property>();
 	private List<PropertiesListener> _listeners;
-	private Logger _logger;
 	private File _srcFile;
 	
 	private boolean _backuping = false;
+	private boolean _simulationOnly = false;
 	
 	public Properties() {
 		_listeners = new LinkedList<PropertiesListener>();
 	}
 	
 	//-------------------------------------------------------------------------
-	//-- Listeners
+	//-- Properties Listener
 	//-------------------------------------------------------------------------
 	
 	public void addListener(PropertiesListener listener) {
@@ -98,35 +98,6 @@ public class Properties implements Logger, PropertyListener {
 	}
 	
 	//-------------------------------------------------------------------------
-	//-- Logger
-	//-------------------------------------------------------------------------
-	
-	public void setLogger(Logger logger) {
-		_logger = logger;
-	}
-	
-	@Override
-	public void log(String text) {
-		if (_logger != null) {
-			_logger.log(text);
-		}
-	}
-
-	@Override
-	public void error(String text) {
-		if (_logger != null) {
-			_logger.error(text);
-		}
-	}
-	
-	@Override
-	public void clear() {
-		if (_logger != null) {
-			_logger.clear();
-		}		
-	}	
-	
-	//-------------------------------------------------------------------------
 	//-- Getters and Setters
 	//-------------------------------------------------------------------------
 	
@@ -197,6 +168,14 @@ public class Properties implements Logger, PropertyListener {
 		return (properties.toString().compareTo(this.toString()) != 0); 
 	}
 	
+	public void isSimulationOnly(boolean state) {
+		_simulationOnly = state;
+	}
+	
+	public boolean isSimulationOnly() {
+		return _simulationOnly;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
@@ -207,6 +186,7 @@ public class Properties implements Logger, PropertyListener {
 		}
 		return sb.toString();
 	}
+	
 
 	//-------------------------------------------------------------------------
 	//-- Property listener
@@ -222,7 +202,7 @@ public class Properties implements Logger, PropertyListener {
 		if (_backuping == false) {
 			reinitTotalSrcFiles();
 			notifyListerners_ioOperationStart();
-			clear();
+			logClear();
 		}
 	}
 	
@@ -292,7 +272,7 @@ public class Properties implements Logger, PropertyListener {
 		} else {
 			_backuping = true;
 			notifyListerners_ioOperationStart();
-			clear();
+			logClear();
 			
 			for (int i = 0; i < _properties.size(); ++i) {
 				_properties.get(i).countSrcFile();

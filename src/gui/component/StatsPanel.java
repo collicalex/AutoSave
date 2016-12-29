@@ -1,13 +1,11 @@
 package gui.component;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -34,11 +32,13 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 	
 	private JLabel _startTime;
 	private JLabel _ellapsedTime;
+	private JLabel _remainingTime;
 	private JLabel _endTime;
 	private JLabel _endTilmeLabel;
 	
 	private long _startTimeMS;
 	private long _ellapsedTimeMS;
+	private long _remainingTimeMS;
 	private long _endTimeMS;
 	
 	private JProgressBar _progressBar;
@@ -47,15 +47,7 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 		_nbFilesToCopy = new JLabel("", SwingConstants.RIGHT);
 		_nbFilesProcessed = new JLabel("", SwingConstants.RIGHT);
 		_nbFilesNew = new JLabel("", SwingConstants.RIGHT);
-		JPanel leftPanel = new JPanel(new GridLayout(4, 2));
-		
-		JCheckBox simuMode = new JCheckBox();
-		simuMode.setBorder(null);
-		
-		
-		leftPanel.add(createCaption("Simulation mode"));
-		leftPanel.add(simuMode);
-		
+		JPanel leftPanel = new JPanel(new GridLayout(3, 2));
 		leftPanel.add(createCaption("Source files"));
 		leftPanel.add(_nbFilesToCopy);
 		leftPanel.add(createCaption("Processed files"));
@@ -67,15 +59,14 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 		_startTime = new JLabel("", SwingConstants.RIGHT);
 		_endTime = new JLabel("", SwingConstants.RIGHT);
 		_ellapsedTime = new JLabel("", SwingConstants.RIGHT);
+		_remainingTime = new JLabel("", SwingConstants.RIGHT);
 		JPanel rightPanel = new JPanel(new GridLayout(4, 2));
 		rightPanel.add(createCaption("Start time"));
 		rightPanel.add(_startTime);
 		rightPanel.add(createCaption("Elapsed time"));
 		rightPanel.add(_ellapsedTime);
-		
 		rightPanel.add(createCaption("Remaining time"));
-		rightPanel.add(new JLabel(""));
-		
+		rightPanel.add(_remainingTime);
 		_endTilmeLabel = createCaption("End time (estimated)"); 
 		rightPanel.add(_endTilmeLabel);
 		rightPanel.add(_endTime);
@@ -142,7 +133,7 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 		_startTime.setText(formatTime(_startTimeMS));
 		updateElaspedTime();
 		_endTime.setText("");
-		_endTilmeLabel.setText("End time (estimated)");
+		_endTilmeLabel.setText("End time (estimated) : ");
 		
 		_nbFilesProcessedLong = -1;
 		_nbFilesNewLong = -1;
@@ -183,7 +174,10 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 	public void ioOperationEnd(Properties properties) {
 		_endTimeMS = System.currentTimeMillis();
 		_endTime.setText(formatTime(_endTimeMS));
-		_endTilmeLabel.setText("End time");		
+		_endTilmeLabel.setText("End time : ");		
+
+		_remainingTimeMS = 0;
+		_remainingTime.setText(formatDuration(_remainingTimeMS));
 		
 		updateElaspedTime();
 		
@@ -205,6 +199,13 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 			long estimatedTotalEllapsedTimeMS = (_nFilesToCopyLong * _ellapsedTimeMS) / _nbFilesProcessedLong;
 			_endTimeMS = _startTimeMS + estimatedTotalEllapsedTimeMS;
 			_endTime.setText(formatTime(_endTimeMS));
+			
+			_remainingTimeMS = _endTimeMS - System.currentTimeMillis();
+			if (_remainingTimeMS < 0) { //it must never happen, but to be sure...
+				_remainingTimeMS = 0; 
+			}
+			_remainingTime.setText(formatDuration(_remainingTimeMS));
+			
 		} else {
 			_endTime.setText("");
 		}

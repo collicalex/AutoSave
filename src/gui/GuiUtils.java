@@ -2,9 +2,11 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Font;
 import java.util.List;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -43,4 +45,9 @@ public class GuiUtils {
 		}
 		return first;
 	}    
+	
+	public static void setBold(JLabel label) {
+		Font f = label.getFont();
+		label.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
+	}
 }

@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -44,6 +45,7 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	private JButton _loadConfigFile;
 	private JButton _saveConfigFile;
 	private JButton _newEntryButton;
+	private JCheckBox _simulationMode;
 	
 	private List<PropertiesPanelListener> _listeners;
 	
@@ -140,15 +142,32 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 		buttonsPanel.add(_loadConfigFile);
 		buttonsPanel.add(_saveConfigFile);
 		
-		JLabel label = new JLabel("Config File :");
+		JLabel label = new JLabel("Config File");
 		label.setPreferredSize(new Dimension(75, 1));
-		
+		GuiUtils.setBold(label);
 		JPanel configPanel = new JPanel(new BorderLayout());
 		configPanel.add(label, BorderLayout.WEST);
 		configPanel.add(_configFile, BorderLayout.CENTER);
 		configPanel.add(buttonsPanel, BorderLayout.EAST);
 		
+		JLabel label2 = new JLabel("Simulation");
+		label2.setPreferredSize(new Dimension(75, 1));
+		GuiUtils.setBold(label2);
+		JPanel simuPanel = new JPanel(new BorderLayout());
+		simuPanel.add(label2, BorderLayout.WEST);
+		_simulationMode = new JCheckBox();
+		_simulationMode.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_properties.isSimulationOnly(_simulationMode.isSelected());			
+			}
+		});
 		
+		_simulationMode.setBorder(new EmptyBorder(0, 0, 5, 0));
+		simuPanel.add(_simulationMode, BorderLayout.CENTER);
+		configPanel.add(simuPanel, BorderLayout.NORTH);
+
 		configPanel.setBorder(new EmptyBorder(5, 5, 10, 5));
 		
 		return configPanel;
@@ -269,6 +288,10 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 		_saveConfigFile.setForeground(isSaveNeeded() ? Color.RED : Color.BLACK);
 	}
 	
+	public boolean isSimulationModeChecked() {
+		return _simulationMode.isSelected();
+	}
+	
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
@@ -281,6 +304,7 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 		_loadConfigFile.setEnabled(enabled);
 		_saveConfigFile.setEnabled(enabled);
 		_newEntryButton.setEnabled(enabled);
+		_simulationMode.setEnabled(enabled);
 	}
 	
 	@Override

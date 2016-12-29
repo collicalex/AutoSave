@@ -3,7 +3,6 @@ package gui.component;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -155,8 +154,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 	
 	private JPanel createPanel(JLabel label, JComponent component, JButton button) {
 		if (component == null) {
-			Font f = label.getFont();
-			label.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
+			GuiUtils.setBold(label);
 		}
 		
 		JPanel panel = new JPanel(new BorderLayout());

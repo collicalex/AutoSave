@@ -21,12 +21,11 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
-import core.Logger;
 import gui.component.JLogPanel;
 import gui.component.PropertiesPanel;
 import gui.component.StatsPanel;
 
-public class Gui implements Logger{
+public class Gui {
 
 	private JLogPanel _logPanel;
 	private List<GuiListener> _listeners;
@@ -36,12 +35,12 @@ public class Gui implements Logger{
 		GuiUtils.setSystemLookAndFeel();
 		_listeners = new LinkedList<GuiListener>();
 		
-		PropertiesPanel propertiesPanel = new PropertiesPanel(this);
-		this.addListener(propertiesPanel);
-		
 		_logPanel = new JLogPanel();
 		_logPanel.setPreferredSize(new Dimension(600, 600));
 		JScrollPane logScrollPane = new JScrollPane(_logPanel);
+		
+		PropertiesPanel propertiesPanel = new PropertiesPanel(_logPanel);
+		this.addListener(propertiesPanel);
 		
 		StatsPanel statPanel = new StatsPanel();
 		propertiesPanel.addListener(statPanel);
@@ -115,22 +114,6 @@ public class Gui implements Logger{
 			listener.applicationClosing();
 		}
 	}
-	
 
-	@Override
-	public void log(String text) {
-		_logPanel.log(text);
-	}
-
-	@Override
-	public void error(String text) {
-		_logPanel.error(text);
-	}
-
-
-	@Override
-	public void clear() {
-		_logPanel.clear();
-	}
 }
 

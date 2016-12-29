@@ -8,9 +8,7 @@ import java.nio.channels.FileChannel;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Property implements Logger {
-	
-	private boolean SIMU_ONLY = false;
+public class Property {
 	
 	private String _src = "";
 	private String _dst = "";
@@ -78,29 +76,6 @@ public class Property implements Logger {
 			listener.ioOperationCountSrcFilesDone(this);
 		}
 	}
-	
-	//-------------------------------------------------------------------------
-	//-- Logger
-	//-------------------------------------------------------------------------
-	
-	@Override
-	public void log(String text) {
-		if (_properties != null) {
-			_properties.log(text);
-		}
-	}
-
-	@Override
-	public void error(String text) {
-		if (_properties != null) {
-			_properties.error(text);
-		}
-	}
-	
-	@Override
-	public void clear() {
-	}
-	
 	
 	//-------------------------------------------------------------------------
 	//-- Getters and Setters
@@ -230,6 +205,8 @@ public class Property implements Logger {
 	private long _totalBackupedSrcFiles = 0;
 	private long _totlaNewFilesSaved = 0; 
 	
+	private long _maxPathLength = 0;
+	
 	public long getTotalSrcFiles() {
 		return _totalSrcFiles;
 	}
@@ -259,7 +236,7 @@ public class Property implements Logger {
 				countSrcFile();
 			}
 			
-			log("\nSaving from " + _src + "\n");
+			_properties.logText("\nSaving from " + _src + "\n");
 			save_files(new File(_src), new File(_dst));
 			
 			_backuping = false;
@@ -268,14 +245,15 @@ public class Property implements Logger {
 	}
 	
 	synchronized public void countSrcFile() {
-		log("Counting number of files in " + _src);
+		_properties.logText("Counting number of files in " + _src);
+		_maxPathLength = 0;
 		_totalSrcFiles = nb_files(new File(_src));
-		log("     " + _totalSrcFiles + "\n");
+		_properties.logText("     " + _totalSrcFiles + "\n");
 		notifyListerners_ioOperationCountSrcFilesDone();
 	}
 	
 	
-	//-- Low level IO ---------------------------------------------------------
+	//-- Low level IO : Count files -------------------------------------------
 	
 	private long nb_files(File file) {
 		long res = 0;
@@ -287,24 +265,35 @@ public class Property implements Logger {
 				File[] files = file.listFiles();
 				for (int i = 0; i < files.length; i++) {
 					if (files[i].isFile()) {
-						res++;
+						res += count_file(files[i]);
 					} else if ((files[i].isDirectory()) && _recur) {
 						res += nb_files(files[i]);
 					}
 				}
 			} else {
-				res++;
+				res += count_file(file);
 			}
 		}
 		return res;
 	}
 	
+	private int count_file(File file) {
+	    if (isIgnored(file.getAbsolutePath())) {
+	    	return 0;
+	    }
+	    _maxPathLength = Math.max(_maxPathLength, file.getAbsolutePath().length());
+	    return 1;
+	}
+	
+	
+	//-- Low level IO : Copy files --------------------------------------------
+	
 	private void save_files(File src, File dst) {
+		_properties.logText("Saving " + src.getAbsolutePath() + "\n");
 	    if (isIgnored(src.getAbsolutePath())) {
-	    	log("Ignoring " + src.getAbsolutePath());
+	    	_properties.logSkip(src.getAbsolutePath());
 	    	return;
-	    }		
-		log("Saving " + src.getAbsolutePath() + "\n");
+	    }
 		if (src.exists()) {
 			if (src.isDirectory()) {
 				File[] files = src.listFiles();
@@ -320,13 +309,18 @@ public class Property implements Logger {
 				copy_file(src, dst);
 			}
 		} else {
-			error("Source file doesn't exist! (" + src.getAbsolutePath() + ")\n");
+			_properties.logError("Source file doesn't exist! (" + src.getAbsolutePath() + ")\n");
 		}
 	}
 	
     // Copies src file to dst file.
     @SuppressWarnings("resource")
 	private void copy_file(File src, File dst) {
+	    if (isIgnored(src.getAbsolutePath())) {
+	    	_properties.logSkip(src.getAbsolutePath());
+	    	return;
+	    }
+    	
     	_totalBackupedSrcFiles++;
     	notifyListerners_ioOperationOneFileProcessed();
     	
@@ -336,14 +330,15 @@ public class Property implements Logger {
     		}
     	}
     	
-    	log("New file : " + src.getAbsolutePath() + "\n");
     	notifyListerners_ioOperationOneFileNew();
     	
-    	if (SIMU_ONLY) {
-    		log("SIMU: " + src.getAbsolutePath() + " --> " + dst.getAbsolutePath() + "\n");
+    	if (_properties.isSimulationOnly()) {
+    		_properties.logSimu(src.getAbsolutePath(), dst.getAbsolutePath(), _maxPathLength);
     		return ;
+    	} else {
+    		_properties.logCopy(src.getAbsolutePath(), dst.getAbsolutePath(), _maxPathLength);
     	}
-    	
+
     	dst.getParentFile().mkdirs();
     	
     	FileChannel srcChannel = null;
@@ -354,7 +349,7 @@ public class Property implements Logger {
     		dstChannel = new FileOutputStream(dst).getChannel();
     		dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
     	} catch (Exception e) {
-    		error(e.getMessage() + "\n");
+    		_properties.logError(e.getMessage() + "\n");
     		e.printStackTrace();
     	} finally {
     		closeChannel(srcChannel);
@@ -364,16 +359,18 @@ public class Property implements Logger {
     	_totlaNewFilesSaved++;
     }	
 
-    private void closeChannel(FileChannel channel) {
+	private void closeChannel(FileChannel channel) {
 		if (channel != null) {
 			try {
 				channel.close();
 			} catch (IOException e) {
-				error(e.getMessage() + "\n");
+				_properties.logError(e.getMessage() + "\n");
 				e.printStackTrace();
 			}
 		}
     }
+
+
 
 
 }
