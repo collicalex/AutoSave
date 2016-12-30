@@ -1,4 +1,3 @@
-import gui.EFont;
 import gui.Gui;
 
 
@@ -6,7 +5,6 @@ import gui.Gui;
 //TODO: Prevent hibernate
 //TODO: Option (action) to retrieve lost file from local computer into the backup
 //TODO: Add a last backup datetime somewhere?
-//TODO: Add color in log
 
 public class Main {
 	

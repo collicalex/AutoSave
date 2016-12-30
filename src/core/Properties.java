@@ -274,10 +274,7 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 			notifyListerners_ioOperationStart();
 			logClear();
 			
-			for (int i = 0; i < _properties.size(); ++i) {
-				_properties.get(i).countSrcFile();
-			}
-			
+			countSrcFile();
 			notifyListeners_ioOperationCountSrcFilesDone();
 			
 			for (int i = 0; i < _properties.size(); ++i) {
@@ -289,4 +286,14 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 		}
 	}
 
+	private void countSrcFile() {
+		long maxSrcPathLength = 0;
+		for (int i = 0; i < _properties.size(); ++i) {
+			maxSrcPathLength = Math.max(maxSrcPathLength, _properties.get(i).getSource().length());
+		}
+		for (int i = 0; i < _properties.size(); ++i) {
+			_properties.get(i).countSrcFile(maxSrcPathLength);
+		}
+	}
+	
 }

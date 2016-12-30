@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class Property {
 	
@@ -233,10 +234,9 @@ public class Property {
 			_totalBackupedSrcFiles = 0;
 			
 			if (countSrcFileAlreadyDone == false) {
-				countSrcFile();
+				countSrcFile(_src.length());
 			}
 			
-			_properties.logText("\nSaving from " + _src + "\n");
 			save_files(new File(_src), new File(_dst));
 			
 			_backuping = false;
@@ -244,11 +244,11 @@ public class Property {
 		}
 	}
 	
-	synchronized public void countSrcFile() {
-		_properties.logText("Counting number of files in " + _src);
+	synchronized public void countSrcFile(long maxSrcPathLength) {
+		_properties.logCountLabel(_src, maxSrcPathLength);
 		_maxPathLength = 0;
 		_totalSrcFiles = nb_files(new File(_src));
-		_properties.logText("     " + _totalSrcFiles + "\n");
+		_properties.logCountValue(_totalSrcFiles);
 		notifyListerners_ioOperationCountSrcFilesDone();
 	}
 	
@@ -288,28 +288,40 @@ public class Property {
 	
 	//-- Low level IO : Copy files --------------------------------------------
 	
+	private class SrcDst {
+		public File src;
+		public File dst;
+		public SrcDst(File src, File dst) {
+			this.src = src;
+			this.dst = dst;
+		}
+	}
+	
 	private void save_files(File src, File dst) {
-		_properties.logText("Saving " + src.getAbsolutePath() + "\n");
+		
 	    if (isIgnored(src.getAbsolutePath())) {
+	    	_properties.logSave(src.getAbsolutePath());
 	    	_properties.logSkip(src.getAbsolutePath());
 	    	return;
 	    }
-		if (src.exists()) {
-			if (src.isDirectory()) {
-				File[] files = src.listFiles();
-				for (int i = 0; i < files.length; i++) {
-					File file_dst = new File(dst.getPath(), files[i].getName());
-					if (files[i].isFile()) {
-						copy_file(files[i], file_dst);
-					} else if ((files[i].isDirectory()) && _recur) {
-						save_files(files[i], file_dst);
+		
+		Queue<SrcDst> dirs = new LinkedList<SrcDst>();
+		dirs.add(new SrcDst(src, dst));
+		while (!dirs.isEmpty()) {
+			SrcDst sd = dirs.poll();
+			_properties.logSave(sd.src.getAbsolutePath());
+			for (File f : sd.src.listFiles()) {
+			    if (isIgnored(f.getAbsolutePath())) {
+			    	_properties.logSkip(f.getAbsolutePath());
+			    } else {
+			    	File file_dst = new File(sd.dst.getPath(), f.getName());
+			    	if (f.isFile()) {
+						copy_file(f, file_dst);
+			    	} else if (f.isDirectory() && _recur) {
+						dirs.add(new SrcDst(f, file_dst));
 					}
-				}
-			} else {
-				copy_file(src, dst);
+			    }
 			}
-		} else {
-			_properties.logError("Source file doesn't exist! (" + src.getAbsolutePath() + ")\n");
 		}
 	}
 	

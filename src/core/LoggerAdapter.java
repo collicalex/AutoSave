@@ -30,12 +30,12 @@ public class LoggerAdapter implements Logger {
 	}
 
 	@Override
-	public void logText(String text) {
+	public void logSave(String dir) {
 		if (_logger != null) {
-			_logger.logText(text);
+			_logger.logSave(dir);
 		}
 	}
-
+	
 	@Override
 	public void logError(String text) {
 		if (_logger != null) {
@@ -49,5 +49,20 @@ public class LoggerAdapter implements Logger {
 			_logger.logClear();
 		}
 	}
+
+	@Override
+	public void logCountLabel(String src, long maxSrcPathLength) {
+		if (_logger != null) {
+			_logger.logCountLabel(src, maxSrcPathLength);
+		}
+	}
+
+	@Override
+	public void logCountValue(long value) {
+		if (_logger != null) {
+			_logger.logCountValue(value);
+		}
+	}
+
 	
 }

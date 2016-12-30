@@ -3,7 +3,6 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -36,8 +35,11 @@ public class Gui {
 		_listeners = new LinkedList<GuiListener>();
 		
 		_logPanel = new JLogPanel();
-		_logPanel.setPreferredSize(new Dimension(600, 600));
-		JScrollPane logScrollPane = new JScrollPane(_logPanel);
+		JPanel noWrapPanel = new JPanel(new BorderLayout());
+		noWrapPanel.add(_logPanel );
+		JScrollPane logScrollPane = new JScrollPane(noWrapPanel);
+		logScrollPane.getVerticalScrollBar().setUnitIncrement(15);
+
 		
 		PropertiesPanel propertiesPanel = new PropertiesPanel(_logPanel);
 		this.addListener(propertiesPanel);
