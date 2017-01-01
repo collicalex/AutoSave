@@ -22,6 +22,7 @@ import javax.swing.border.MatteBorder;
 
 import gui.component.JLogPanel;
 import gui.component.PropertiesPanel;
+import gui.component.SmartScroller;
 import gui.component.StatsPanel;
 
 public class Gui {
@@ -39,6 +40,7 @@ public class Gui {
 		noWrapPanel.add(_logPanel );
 		JScrollPane logScrollPane = new JScrollPane(noWrapPanel);
 		logScrollPane.getVerticalScrollBar().setUnitIncrement(15);
+		new SmartScroller(logScrollPane);
 
 		
 		PropertiesPanel propertiesPanel = new PropertiesPanel(_logPanel);
