@@ -206,8 +206,6 @@ public class Property {
 	private long _totalBackupedSrcFiles = 0;
 	private long _totlaNewFilesSaved = 0; 
 	
-	private long _maxPathLength = 0;
-	
 	public long getTotalSrcFiles() {
 		return _totalSrcFiles;
 	}
@@ -246,7 +244,6 @@ public class Property {
 	
 	synchronized public void countSrcFile(long maxSrcPathLength) {
 		_properties.logCountLabel(_src, maxSrcPathLength);
-		_maxPathLength = 0;
 		_totalSrcFiles = nb_files(new File(_src));
 		_properties.logCountValue(_totalSrcFiles);
 		notifyListerners_ioOperationCountSrcFilesDone();
@@ -281,8 +278,21 @@ public class Property {
 	    if (isIgnored(file.getAbsolutePath())) {
 	    	return 0;
 	    }
-	    _maxPathLength = Math.max(_maxPathLength, file.getAbsolutePath().length());
 	    return 1;
+	}
+	
+	
+	//-- Low level IO : Max path length ---------------------------------------
+	
+	private long maxPathLength(File[] files) {
+		long maxPathLength = 0;
+		for (int i = 0; i < files.length; i++) {
+			String path = files[i].getAbsolutePath();
+		    if (isIgnored(path) == false) {
+		    	maxPathLength = Math.max(maxPathLength, path.length());
+		    }
+		}
+		return maxPathLength;
 	}
 	
 	
@@ -310,13 +320,15 @@ public class Property {
 		while (!dirs.isEmpty()) {
 			SrcDst sd = dirs.poll();
 			_properties.logSave(sd.src.getAbsolutePath());
-			for (File f : sd.src.listFiles()) {
+			File[] files = sd.src.listFiles();
+			long maxPathLength = maxPathLength(files);
+			for (File f : files) {
 			    if (isIgnored(f.getAbsolutePath())) {
 			    	_properties.logSkip(f.getAbsolutePath());
 			    } else {
 			    	File file_dst = new File(sd.dst.getPath(), f.getName());
 			    	if (f.isFile()) {
-						copy_file(f, file_dst);
+						copy_file(f, file_dst, maxPathLength);
 			    	} else if (f.isDirectory() && _recur) {
 						dirs.add(new SrcDst(f, file_dst));
 					}
@@ -327,7 +339,7 @@ public class Property {
 	
     // Copies src file to dst file.
     @SuppressWarnings("resource")
-	private void copy_file(File src, File dst) {
+	private void copy_file(File src, File dst, long maxPathLength) {
 	    if (isIgnored(src.getAbsolutePath())) {
 	    	_properties.logSkip(src.getAbsolutePath());
 	    	return;
@@ -345,10 +357,10 @@ public class Property {
     	notifyListerners_ioOperationOneFileNew();
     	
     	if (_properties.isSimulationOnly()) {
-    		_properties.logSimu(src.getAbsolutePath(), dst.getAbsolutePath(), _maxPathLength);
+    		_properties.logSimu(src.getAbsolutePath(), dst.getAbsolutePath(), maxPathLength);
     		return ;
     	} else {
-    		_properties.logCopy(src.getAbsolutePath(), dst.getAbsolutePath(), _maxPathLength);
+    		_properties.logCopy(src.getAbsolutePath(), dst.getAbsolutePath(), maxPathLength);
     	}
 
     	dst.getParentFile().mkdirs();

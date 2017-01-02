@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -49,7 +50,16 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	
 	private List<PropertiesPanelListener> _listeners;
 	
+	private File _default;
+	
 	public PropertiesPanel(Logger logger) {
+		try {
+			_default = new File(PropertiesPanel.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath(), "autosave.ini");
+		} catch (URISyntaxException e1) {
+			_default = new File("autosave.ini");
+			e1.printStackTrace();
+		}
+		
 		JPanel configPanel = createConfigPanel();
 		_logger = logger;
 		_listeners = new LinkedList<PropertiesPanelListener>();
@@ -79,7 +89,8 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 		this.add(scrollPane, BorderLayout.CENTER);
 		this.add(_backupAllButton, BorderLayout.SOUTH);
 		
-		loadConfigFile(new File("autosave.ini"));
+		setProperties(new Properties());
+		loadConfigFile(_default);
 		
 		this.setPreferredSize(new Dimension(400,600));
 	}
@@ -175,7 +186,13 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	
 	private JFileChooser getFileChooser() {
 		JFileChooser chooser = new JFileChooser(); 
-	    chooser.setSelectedFile(new File(_configFile.getText()));
+		if (_configFile.getText().trim().isEmpty() == false) {
+			System.out.println("Set file chooser path to config file");
+			chooser.setSelectedFile(new File(_configFile.getText()));
+		} else {
+			System.out.println("Set file chooser path to default");
+			chooser.setSelectedFile(_default);
+		}
 	    chooser.setDialogTitle("Select configuration file");
 	    chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	    FileNameExtensionFilter filter = new FileNameExtensionFilter("Configuration file (*.ini)", "ini");
@@ -185,19 +202,19 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	}
 	
 	private void loadConfigFile(File file) {
-		_configFile.setText(file.getAbsolutePath());
 		Properties properties = new Properties();
 		
 		if (file.exists()) {
 			try {
 				properties.read(file);
+				propertiesLoad(properties, file);
 			} catch (IOException e) {
 				JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				e.printStackTrace();
 			}
 		}
 		
-		setProperties(properties);
+		//setProperties(properties);
 	}
 	
 	private void saveConfigFile(File file) {
@@ -217,20 +234,22 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	}
 	
 	private void setProperties(Properties properties) {
-		notifyListerners_propertyUpdate(_properties, properties);
-		
-		if (_properties != null) {
-			_properties.removeListener(this);
-			_properties.setLogger(null);
+		if (properties != _properties) {
+			notifyListerners_propertyUpdate(_properties, properties);
+			
+			if (_properties != null) {
+				_properties.removeListener(this);
+				_properties.setLogger(null);
+			}
+	
+			_properties = properties;
+			if (_properties != null) {
+				_properties.addListener(this);
+				_properties.setLogger(_logger);
+			}
+			
+			rebuildPanel();
 		}
-
-		_properties = properties;
-		if (_properties != null) {
-			_properties.addListener(this);
-			_properties.setLogger(_logger);
-		}
-		
-		rebuildPanel();
 	}
 	
 	
@@ -308,12 +327,15 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	}
 	
 	@Override
-	public void propertiesLoad(Properties properties) {
+	public void propertiesLoad(Properties properties, File file) {
+		_configFile.setText(file.getAbsolutePath());
 		setProperties(properties);
 	}
 	
 	@Override
-	public void propertiesSave(Properties properties) {
+	public void propertiesSave(Properties properties, File file) {
+		_configFile.setText(file.getAbsolutePath());
+		setProperties(properties); //TODO?
 		updateSaveButton();
 	}
 

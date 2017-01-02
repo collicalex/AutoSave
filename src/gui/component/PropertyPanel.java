@@ -40,12 +40,14 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 	private JTextField2 _src;
 	private JTextField2 _dst;
 	private JComboBox<Boolean> _recur;
-	private DefaultListModel<String> _ignoredList;
+	private DefaultListModel<String> _ignoredListModel;
+	private JList<String> _ignoredList;
 	
 	private JButton _deleteButton;
 	private JButton _srcBrowseButton;
 	private JButton _dstBrowseButton;
 	private JButton _backupButton;
+	private JButton _addToIgnoreListButton;
 	private JButton _removeFromIgnoreListButton;
 	
 	private JProgressBar _progressBar;
@@ -169,21 +171,21 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 	}
 	
 	private JPanel createPanelIgnoredList() {
-		_ignoredList = new DefaultListModel<String>();
+		_ignoredListModel = new DefaultListModel<String>();
 		
-		JList<String> ignoredList = new JList<String>(_ignoredList);
-		ignoredList.setVisibleRowCount(1);
-		JScrollPane scrollPane = new JScrollPane(ignoredList);
+		_ignoredList = new JList<String>(_ignoredListModel);
+		_ignoredList.setVisibleRowCount(1);
+		JScrollPane scrollPane = new JScrollPane(_ignoredList);
 		
 		JLabel label = new JLabel("Ignored:");
 		label.setPreferredSize(new Dimension(75, 20));
 		JPanel labelPanel = new JPanel(new BorderLayout());
 		labelPanel.add(label, BorderLayout.NORTH);
 		
-		JButton addButton = new JButton("+");
+		_addToIgnoreListButton = new JButton("+");
 		_removeFromIgnoreListButton = new JButton("-");
 		
-		addButton.addActionListener(new ActionListener() {
+		_addToIgnoreListButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -192,7 +194,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			    chooser.setDialogTitle("Select ignoring directory or file");
 			    chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 			    chooser.setAcceptAllFileFilterUsed(false);
-			    if (chooser.showOpenDialog(GuiUtils.getOldestParent(addButton)) == JFileChooser.APPROVE_OPTION) {
+			    if (chooser.showOpenDialog(GuiUtils.getOldestParent(_addToIgnoreListButton)) == JFileChooser.APPROVE_OPTION) {
 			    	
 			    	boolean showWarningMessage = false;
 			    	if (_recur.getSelectedItem() == Boolean.FALSE) {
@@ -203,9 +205,9 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			    	
 			    	if (showWarningMessage == true) {
 			    		if (chooser.getSelectedFile().isDirectory()) {
-			    			JOptionPane.showMessageDialog(GuiUtils.getOldestParent(addButton), "Selected directory is not a sub directory of source one!", "Warning", JOptionPane.WARNING_MESSAGE);
+			    			JOptionPane.showMessageDialog(GuiUtils.getOldestParent(_addToIgnoreListButton), "Selected directory is not a sub directory of source one!", "Warning", JOptionPane.WARNING_MESSAGE);
 			    		} else {
-			    			JOptionPane.showMessageDialog(GuiUtils.getOldestParent(addButton), "Selected file to ignore is not inside the source directory one (or inside one of its sub folder)!", "Warning", JOptionPane.WARNING_MESSAGE);
+			    			JOptionPane.showMessageDialog(GuiUtils.getOldestParent(_addToIgnoreListButton), "Selected file to ignore is not inside the source directory one (or inside one of its sub folder)!", "Warning", JOptionPane.WARNING_MESSAGE);
 			    		}
 			    	} 
 			    	_property.addToIgnoreList(chooser.getSelectedFile().getAbsolutePath());			    	
@@ -216,12 +218,12 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 		_removeFromIgnoreListButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				_property.removeFromIgnoreList(ignoredList.getSelectedValue());
+				_property.removeFromIgnoreList(_ignoredList.getSelectedValue());
 			}
 		});
 		
 		JPanel buttonsPanel = new JPanel(new GridLayout(2, 1));
-		buttonsPanel.add(addButton);
+		buttonsPanel.add(_addToIgnoreListButton);
 		buttonsPanel.add(_removeFromIgnoreListButton);
 		JPanel buttonsPanelNorth = new JPanel(new BorderLayout());
 		buttonsPanelNorth.add(buttonsPanel, BorderLayout.NORTH);
@@ -240,9 +242,9 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			_src.notifyListeners();
 			_dst.setText(property.getDestination());
 			_recur.setSelectedItem(property.getRecursive());
-			_ignoredList.removeAllElements();
+			_ignoredListModel.removeAllElements();
 			for (String ignored : property.getIgnoredList()) {
-				_ignoredList.addElement(ignored);
+				_ignoredListModel.addElement(ignored);
 			}
 			_removeFromIgnoreListButton.setEnabled(property.getIgnoredList().size() > 0);
 		}
@@ -285,6 +287,9 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 		_srcBrowseButton.setEnabled(enabled);
 		_dstBrowseButton.setEnabled(enabled);
 		_backupButton.setEnabled(enabled);
+		_addToIgnoreListButton.setEnabled(enabled);
+		_removeFromIgnoreListButton.setEnabled(enabled);
+		_ignoredList.setEnabled(enabled);
 	}
 
 	@Override

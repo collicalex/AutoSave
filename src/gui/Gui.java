@@ -22,7 +22,6 @@ import javax.swing.border.MatteBorder;
 
 import gui.component.JLogPanel;
 import gui.component.PropertiesPanel;
-import gui.component.SmartScroller;
 import gui.component.StatsPanel;
 
 public class Gui {

@@ -37,15 +37,15 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 		_listeners.remove(listener);
 	}
 	
-	private void notifyListerners_propertiesLoad() {
+	private void notifyListerners_propertiesLoad(File file) {
 		for (PropertiesListener listener : _listeners) {
-			listener.propertiesLoad(this);
+			listener.propertiesLoad(this, file);
 		}
 	}
 
-	private void notifyListeners_propertiesSave() {
+	private void notifyListeners_propertiesSave(File file) {
 		for (PropertiesListener listener : _listeners) {
-			listener.propertiesSave(this);
+			listener.propertiesSave(this, file);
 		}
 	}
 	
@@ -133,14 +133,15 @@ public class Properties extends LoggerAdapter implements PropertyListener {
         if (haveAddSomething) {
         	this.addProperty(property);
         }
-        notifyListerners_propertiesLoad();
+        notifyListerners_propertiesLoad(file);
 	}
 	
 	public void save(File file) throws IOException {
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 		bw.write(this.toString());
 		bw.close();
-		notifyListeners_propertiesSave();
+		_srcFile = file;
+		notifyListeners_propertiesSave(file);
 	}
 	
 	public void addProperty(Property property) {
@@ -157,7 +158,6 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 	
 	public boolean needSave() {
 		Properties properties = new Properties();
-
 		if (_srcFile != null) {
 			try {
 				properties.read(_srcFile);

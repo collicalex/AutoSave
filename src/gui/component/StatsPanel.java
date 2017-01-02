@@ -3,6 +3,7 @@ package gui.component;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.File;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
@@ -229,7 +230,7 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 
 
 	@Override
-	public void propertiesLoad(Properties properties) {
+	public void propertiesLoad(Properties properties, File file) {
 	}
 
 
@@ -248,7 +249,7 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 
 
 	@Override
-	public void propertiesSave(Properties properties) {
+	public void propertiesSave(Properties properties, File file) {
 	}
 
 	
