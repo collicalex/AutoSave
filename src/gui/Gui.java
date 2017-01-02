@@ -48,6 +48,9 @@ public class Gui {
 		StatsPanel statPanel = new StatsPanel();
 		propertiesPanel.addListener(statPanel);
 		
+		StandbyHibernateBlocker shb = new StandbyHibernateBlocker();
+		propertiesPanel.addListener(shb);
+		
 		
         JLabel aboutLabel = new JLabel("About");
         aboutLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));

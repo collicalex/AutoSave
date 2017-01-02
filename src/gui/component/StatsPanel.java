@@ -222,13 +222,6 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 		}
 	}
 
-
-	@Override
-	public String getID() {
-		return "StatPanel";
-	}
-
-
 	@Override
 	public void propertiesLoad(Properties properties, File file) {
 	}
