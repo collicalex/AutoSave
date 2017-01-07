@@ -1,73 +1,141 @@
 <html>
 <head>
-
-	<!-- Metas tag -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, user-scalable=no">
-
-	<!-- Descripcion -->
-	<meta name="author" content="Alexandre Bargeton">
-	<meta name="description" content="AutoSave : a backup software.">
-
-	<!-- CSS -->
-	<link rel="stylesheet" type="text/css" href="css/siimple.css">
-	<link rel="stylesheet" type="text/css" href="css/style.css">
-	
-
-	
-	
-
+	<title>AutoSave</title>
+	<link rel="stylesheet" type="text/css" href="../style.css">
+	<script src="../script.js"></script> 
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 </head>
 <body>
+<script>
+	writeHeader();
+	writeProjectCover("A portable application to save your computer files to your external storage drive.")
+</script>
 
-	<!-- Navbar -->
-	<div class="navbar">
-		<a href="./" class="navbar-logo">AutoSave</a>
-	</div>
+<div id='content'>
 
 
-<!-- Title -->
-<title>AutoSave</title>
-
-<!-- Grid main -->
-<div class="grid main">
-
-	<!-- Getting started title -->
-	<h1>AutoSave</h1>
-	
 	<!-- Description -->
 	<h2>Description</h2>
 	<p>AutoSave is a simple <a href='https://en.wikipedia.org/wiki/Portable_application'>portable application</a> to automatically save (backup) your computer files to your external storage drive.</p>
 	<p>It does only <a href='https://en.wikipedia.org/wiki/Incremental_backup'>incremental backup</a>: all new files will be saved; but files which do not more exist on your local computer will not be deleted from the backup (usb drive).</p> 
 
-	<!-- Download -->
-	<h2>Download</h2>
-	<p>You can download the latest version of AutoSave in the dedicated <a href='https://github.com/collicalex/AutoSave/releases'>releases page</a>.
+<script>
+	writeDownloadSection();
+	writeJavaPreRequirementSection();
+</script>
 	
-	<!-- Pre Requirement -->
-	<h2>Pre Requirement</h2>
-	<p>AutoSave is written in JAVA. So it's natively executable on all Operating System (Windows, OsX, Unix/Linux,...). You just need to have a JRE (Java Runtime Environement) installed on your system. Download it <a href='https://www.java.com/download'>here</a>.</p>
+
 	
 	<!-- How it works? -->
 	<h2>How to use it</h2>
-	<p>1: Just put the <i>autosave.jar</i> file where you wan (internal, external drive).</p>
-	<p>2: Run it! (double click on it).</p>
-	<p>3: At the first use, you have to configure which folders you want to backup. For that, use the left panel of the application window.</p>
-	<p><img src='img/autosave1.png'  width='975px' height='731px'/></p>
-	<p>3.1: By default, the application will automatically load the "autosave.ini" configuration file at startup (in the same folder of "autosave.jar" file). So save your file as this to auto use it</p>
-	<p>3.2: As you can see, the application manage both <a href='https://en.wikipedia.org/wiki/Path_(computing)#Absolute_and_relative_paths'>absolute path and relative path</a> (relative to the autosave.jar file).</p>
-	<p>4: Then either you can run bakcup of only one specific entry ('run backup' button in each entry), either bakcup all entries (button at the bottom left of the application).</p>
-	<p>5: All backup operation will be log into the log part of the application (right part).</p>
-	<p><img src='img/autosave2.png'  width='975px' height='731px'/></p>
+
+	<div class="slideshow-container" style="width:939px;">
+	 
+		<div class='slideshow-images' style="height:725px;">
+			<div class="slide">
+				<img src="img/tutorial0.png" style="width:100%">
+				<div class="slide-text"><b>1 / 15</b><br>At first run, nothing is configured.</div>
+			</div>
+		 
+			<div class="slide">
+				<img src="img/tutorial1.png" style="width:100%">
+				<div class="slide-text"><b>2 / 15</b><br>To configure a new folder or file to backup, use the <span style='color: red'>+</span> button.</div>
+			</div>
+		 
+			<div class="slide">
+				<img src="img/tutorial2.png" style="width:100%">
+				<div class="slide-text"><b>3 / 15</b><br>A new empty entry is created. The source textfield is <span style='background-color: #FCFE99'>yellow</span> as it's empty (or doest not point to an existing folder/file).</div>
+			</div>
+		  
+			<div class="slide">
+				<img src="img/tutorial3.png" style="width:100%">
+				<div class="slide-text"><b>4 / 15</b><br>You have to define source folder (or file), destination folder (or file),<br>recursive or not (i.e. save sub folders), and if you want ignore some folders or files.</div>
+			</div>
+		 
+			<div class="slide">
+				<img src="img/tutorial4.png" style="width:100%">
+				<div class="slide-text"><b>5 / 15</b><br>You can add as many entries as you want.</div>
+			</div>  
+		  
+			<div class="slide">
+				<img src="img/tutorial5.png" style="width:100%">
+				<div class="slide-text"><b>6 / 15</b><br>Don't forget to save your configuration. The save button will be <span style='color: red'>red</span> if any change.<br><i>Tips: When you close the application, if any change, a popup window will invite you to save your new configuration.</i></div>
+			</div>
+		 
+			<div class="slide">
+				<img src="img/tutorial6.png" style="width:100%">
+				<div class="slide-text"><b>7 / 15</b><br>By default, the program will try to load <i>autosave.ini</i> configuration file in the same folder of the <i>AutoSave.jar</i> file.<br>Then it's hightly recommanded to save your configuration file as this.</div>
+			</div>
+		  
+			<div class="slide">
+				<img src="img/tutorial7.png" style="width:100%">
+				<div class="slide-text"><b>8 / 15</b><br>Once saved, the button will be back black, and the configuration file path is displayed in the textfield.</div>
+			</div>
+		 
+			<div class="slide">
+				<img src="img/tutorial8.png" style="width:100%">
+				<div class="slide-text"><b>9 / 15</b><br>Before running a real backup, you can activate the <span style='color:red'>simulation</span> mode by checking the option in top left.</div>
+			</div>  
+		  
+			<div class="slide">
+				<img src="img/tutorial9.png" style="width:100%">
+				<div class="slide-text"><b>10 / 15</b><br>You can run a backup (simulated or not), by clicking either on an individual <span style='color:#F77E22'>run backup</span> button (it will run the backup only for the related entry), either on the <span style='color:red'>backup all</span> button, to backup all entries.</div>
+			</div>
+		 
+			<div class="slide">
+				<img src="img/tutorial10.png" style="width:100%">
+				<div class="slide-text"><b>11/ 15</b><br>Once the backup (simulated or real) is done, it will popup the number of new file saved.<br>New files are the one with a modification date on your sources greater to the one in your destination.</div>
+			</div>
+		  
+			<div class="slide">
+				<img src="img/tutorial11.png" style="width:100%">
+				<div class="slide-text"><b>12/ 15</b><br>In top right part, some <span style='color:red'>statistics</span> are displayed. In the log part (main part at right), firstly is displayed the <span style='color:#F77E22'>number of files</span> per source directory. Then during the backup, if a file is <span style='color:#9F46A2'>skip</span>, it's displayed in <span style='color:grey'>grey</span>, and you can view that the copy is tag as <span style='color:green'>SIMU</span>.</div>
+			</div>
+		 
+			<div class="slide">
+				<img src="img/tutorial12.png" style="width:100%">
+				<div class="slide-text"><b>13/ 15</b><br>Once you have verified in the simulated log that the source and destination are correct,<br>you can uncheck the <span style='color:#F77E22'>simulation</span> option, and run the real backup with the <span style='color:red'>backup all</span> button.</div>
+			</div>  
+		  
+			<div class="slide">
+				<img src="img/tutorial13.png" style="width:100%">
+				<div class="slide-text"><b>14/ 15</b><br>During the backup, you can view in <span style='color:red'>statistics</span> panel the estimated end time<br>and in the log part that the copy is now tag as <span style='color:#F77E22'>COPY</span> (the copy is really done).</div>
+			</div>
+		 
+			<div class="slide">
+				<img src="img/tutorial14.png" style="width:100%">
+				<div class="slide-text"><b>15 / 15</b><br>Obviously in this test to create these screenshot, when I change one file in my source (edit text file and save),<br>and run again the backup, the software found 1 new file to save!</div>
+			</div>    
+		</div>
+	</div>
+
+
+	<h2>Tips</h2>
+	
+	<p>Autosave can manage both <a href='https://en.wikipedia.org/wiki/Path_(computing)#Absolute_and_relative_paths'>absolute and relative path</a> in source and destination directories (see next section for an example used).</p>
+	
 	
 	<!-- How it works? -->
 	<h2>How I use it</h2>
-	<p>
-		<ol>
-			<li>I've put the <i>autosave.jar</i> in my dedicated external usb disc (in root).</li><br>
-			<li>I've configured it with absolute path for source directories, but with relative path for destination.<br>Because, my local drive will never change its letter. But my operating system will attribute a "random" letter for my usb drive. The first one connected will be "E:", then the second one "F:"... So if I've already connected a usb key, then my backup usb drive; will have letter F:, but if I've connected it alone, it will have letter E:. And so, with absolute path, it will not work!</li>
-		</ol>
-	</p>
+	
+	<div class="slideshow-container" style="width:939px;">
+		<div class='slideshow-images' style="height:725px;">
+			<div class="slide">
+				<img src="img/tutoriala.png" style="width:100%">
+				<div class="slide-text"><b>1 / 2</b><br>I've put the <i>AutoSave.jar</i> in my dedicated external usb disc (in a dedicated folder).<br>Inside it, I've created a <i>Backup</i> directory where I will save my files.</div>
+			</div>
+		 
+			<div class="slide">
+				<img src="img/tutorialb.png" style="width:100%">
+				<div class="slide-text"><b>2 / 2</b><br>Then I configure it by using absolute path for my source (internal drive);<br>and relative path in destination to save in my current usb drive.</div>
+			</div>
+		</div>
+	</div>
+	
+	<p>I've configured it with <ul><li>absolute path for source directories,</li><li>but with relative path for destination.</li></ul><br>Because, my local (internal) drive will never change its letter (access path). But my operating system will attribute a "random" letter for my (external) usb drive. The first one usb drive connected will be "E:", then the second one will be "F:"... So if I've already connected a usb key, then my backup usb drive will have the letter F:, but if I've connected it alone, it will have the letter E:. And so, with absolute path, it will not work!</ol>
+	</p>	
+	
+	
 	
 	<h2>Warning</h2>
 	<p>Under Windows 7 (and maybe newer version), there are some "hidden" folder in "Documents" (which is in fact "My Document"). These hidden folder are some kind of link, not opennable to : My Music, My Pictures and My Video. If you want to backup your "My document" directory, you must need to add to ignore list:
@@ -85,31 +153,25 @@
 	<p>Some more explanation <a href='https://answers.microsoft.com/en-us/windows/forum/windows_7-files/my-documents-contains-shortcuts-to-my-music-my/1df82564-e079-4844-8061-4219793d468e'>here</a>.
 	</p>
 	
-	<!-- Contribute -->
-	<h2>Want to contribute?</h2>
+	<h2>FAQ</h2>
+	<p>A typical question is: <i>Does autosave support or will support encryption?</i></p>
+	<p>For the moment no, and for the future I think no, as it's a better solution to use an <a href='https://en.wikipedia.org/wiki/Hardware-based_full_disk_encryption'>hardware encrypted</a> drive which are now not really expensive (<i>see the Western Digital <a href='https://www.wdc.com/products/portable-storage/my-passport.html'>My Passport</a> (<a href='https://www.wdc.com/products/portable-storage/my-passport-for-mac-new.html'>for Mac</a>)</i>)</p>
 	
-	<p>You can contribute with AutopSave by <a href='https://github.com/collicalex/AutoSave/releases'>installing it</a>, using it, take a look at its <a href='https://github.com/collicalex/AutoSave'>source code</a> and <a href='https://github.com/collicalex/AutoSave/issues'>submitting issues</a> and <a href='https://github.com/collicalex/AutoSave/pulls'>pull requests</a> :)</p>
-  
-  
-    <!-- Tutorial -->
-	<h2>Follow me</h2>
-	
-	<p>You can follow me:
-		<ul>
-			<li>as photographer on <a href='https://www.flickr.com/photos/colliculus'>Flickr</a></li>
-			<li>as developer on <a href='https://github.com/collicalex'>GitHub</a></li>
-		</ul>
-	</p>
 
-  
-<!-- Close the grid main -->
+<script>
+	writePreFooter();
+</script>
+
+
+
 </div>
 
 
-<!-- Foot -->
-<div class="foot" align="center">
-AutoSave made by <a href="https://www.flickr.com/photos/colliculus">Alexandre Bargeton</a>.
-</div>
+<script>
+	writeFooter();
+</script>
+
+
 
 </body>
-</head>
+</html>
