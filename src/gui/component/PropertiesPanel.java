@@ -11,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -53,12 +52,7 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	private File _default;
 	
 	public PropertiesPanel(Logger logger) {
-		try {
-			_default = new File(PropertiesPanel.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath(), "autosave.ini");
-		} catch (URISyntaxException e1) {
-			_default = new File("autosave.ini");
-			e1.printStackTrace();
-		}
+		_default = new File("autosave.ini");
 		
 		JPanel configPanel = createConfigPanel();
 		_logger = logger;
