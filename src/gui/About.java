@@ -27,7 +27,7 @@ import javax.swing.border.EmptyBorder;
 public class About extends JDialog {
 
 	private static final long serialVersionUID = 1L;
-	private String _version = "v1.0 - 2016/12/24";
+	private String _version = "v2.0 - 2017-01-07";
 
 	public About(Frame frame) {
 		super(frame, "About", true);
@@ -62,7 +62,7 @@ public class About extends JDialog {
 		cGitHub.gridx = 1;
 		cGitHub.gridy = 2;
 		cGitHub.fill = GridBagConstraints.HORIZONTAL;
-		contentPanel.add(getWebLabel("Check source and latest release","https://github.com/collicalex/AutoSave/releases"), cGitHub);
+		contentPanel.add(getWebLabel("Check source and latest release","https://collicalex.github.io/AutoSave/"), cGitHub);
 		
 		GridBagConstraints cAuthor = new GridBagConstraints();
 		cAuthor.gridx = 1;
@@ -75,7 +75,7 @@ public class About extends JDialog {
 		cGitHubRoot.gridx = 1;
 		cGitHubRoot.gridy = 4;
 		cGitHubRoot.fill = GridBagConstraints.HORIZONTAL;
-		contentPanel.add(getWebLabel("Follow me on GitHub (Collicalex)","https://github.com/collicalex/"), cGitHubRoot);
+		contentPanel.add(getWebLabel("Follow me on GitHub (Collicalex)","https://collicalex.github.io/"), cGitHubRoot);
 
 		
 		this.setContentPane(contentPanel);
