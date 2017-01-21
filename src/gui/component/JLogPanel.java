@@ -148,6 +148,12 @@ public class JLogPanel extends JTable implements Logger {
 		this.appendToLastLog(" " + spaces(10 - vstr.length()) + vstr);
 	}	
 	
+	@Override
+	public void logEncryptionUsed() {
+		this.log(Action.EMPTY, "");		
+		this.log(Action.ENCRYPTION, "Encryption will be used to save files");	
+	}
+	
 	//-------------------------------------------------------------------------
 	//-- Specific types--------------------------------------------------------
 	//-------------------------------------------------------------------------
@@ -200,6 +206,7 @@ public class JLogPanel extends JTable implements Logger {
 		public static final int COUNT = 4;
 		public static final int EMPTY = 5;
 		public static final int ERROR = 6;
+		public static final int ENCRYPTION = 7;
 		
 		private int _action;
 		
@@ -227,6 +234,10 @@ public class JLogPanel extends JTable implements Logger {
 			return _action == SAVE;
 		}
 		
+		public boolean isEncryption() {
+			return _action == ENCRYPTION;
+		}
+		
 		//pad the action string on 5 characters
 		@Override
 		public String toString() {
@@ -244,6 +255,8 @@ public class JLogPanel extends JTable implements Logger {
 				return "     ";				
 			} else if (_action == ERROR) {
 				return "ERROR";
+			} else if (_action == ENCRYPTION) {
+				return "CRYPT";
 			} else {
 				return "???? ";
 			}
@@ -345,6 +358,12 @@ public class JLogPanel extends JTable implements Logger {
 	        	cmp.setForeground(Color.BLACK);
 	        	if (isSelected == false) {
 	        		cmp.setBackground(Color.LIGHT_GRAY);
+	        	}
+	        	cmp.setFont(_boldFont);
+	        } else if (action.isEncryption()) {
+	        	cmp.setForeground(new Color(0, 100, 0));
+	        	if (isSelected == false) {
+	        		cmp.setBackground(Color.WHITE);
 	        	}
 	        	cmp.setFont(_boldFont);
 	        } else {

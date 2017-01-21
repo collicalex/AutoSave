@@ -26,6 +26,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import core.EncryptionUI;
 import core.Logger;
 import core.Properties;
 import core.PropertiesListener;
@@ -33,7 +34,7 @@ import core.Property;
 import gui.GuiListener;
 import gui.GuiUtils;
 
-public class PropertiesPanel extends JPanel implements PropertiesListener, GuiListener {
+public class PropertiesPanel extends JPanel implements PropertiesListener, GuiListener, EncryptionUI {
 
 	private static final long serialVersionUID = 1461088403508238922L;
 
@@ -83,7 +84,7 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 		this.add(scrollPane, BorderLayout.CENTER);
 		this.add(_backupAllButton, BorderLayout.SOUTH);
 		
-		setProperties(new Properties());
+		setProperties(new Properties(this));
 		loadConfigFile(_default);
 		
 		this.setPreferredSize(new Dimension(400,600));
@@ -181,10 +182,8 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	private JFileChooser getFileChooser() {
 		JFileChooser chooser = new JFileChooser(); 
 		if (_configFile.getText().trim().isEmpty() == false) {
-			System.out.println("Set file chooser path to config file");
 			chooser.setSelectedFile(new File(_configFile.getText()));
 		} else {
-			System.out.println("Set file chooser path to default");
 			chooser.setSelectedFile(_default);
 		}
 	    chooser.setDialogTitle("Select configuration file");
@@ -196,7 +195,7 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	}
 	
 	private void loadConfigFile(File file) {
-		Properties properties = new Properties();
+		Properties properties = new Properties(this);
 		
 		if (file.exists()) {
 			try {
@@ -385,8 +384,9 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 			}
 		}
 	}
-
-
-
-
+	
+	@Override
+	public String askEncryptionKey() {
+		return JPasswordDialog.askPassword(GuiUtils.getOldestParent(this));
+	}
 }

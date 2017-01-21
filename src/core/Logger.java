@@ -12,4 +12,6 @@ public interface Logger {
 	
 	public void logError(String text);
 	public void logClear();
+	
+	public void logEncryptionUsed();
 }

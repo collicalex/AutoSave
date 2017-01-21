@@ -6,21 +6,26 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+
+import javax.crypto.NoSuchPaddingException;
 
 public class Properties extends LoggerAdapter implements PropertyListener {
 	
 	private Vector<Property> _properties = new Vector<Property>();
 	private List<PropertiesListener> _listeners;
 	private File _srcFile;
+	private EncryptionUI _encryptionUI;
 	
 	private boolean _backuping = false;
 	private boolean _simulationOnly = false;
 	
-	public Properties() {
+	public Properties(EncryptionUI encryptionUI) {
 		_listeners = new LinkedList<PropertiesListener>();
+		_encryptionUI = encryptionUI;
 	}
 	
 	//-------------------------------------------------------------------------
@@ -114,6 +119,7 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 		_properties = new Vector<Property>();
         BufferedReader br = new BufferedReader(new FileReader(file));
         String str;
+        
         Property property = new Property(this);
         boolean haveAddSomething = false;
         while ((str = br.readLine()) != null) {
@@ -126,7 +132,7 @@ public class Properties extends LoggerAdapter implements PropertyListener {
     			haveAddSomething = false;
         	} else {
         		property.add(str);
-        		haveAddSomething = true;
+        		haveAddSomething = true;        			
         	}
         }
         br.close();
@@ -157,7 +163,7 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 	}
 	
 	public boolean needSave() {
-		Properties properties = new Properties();
+		Properties properties = new Properties(null);
 		if (_srcFile != null) {
 			try {
 				properties.read(_srcFile);
@@ -271,6 +277,19 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 			System.err.println("ALREADY BACKUPING???!!!");
 		} else {
 			_backuping = true;
+			
+			Encryption encryption = null;
+			try {
+				encryption = getEncryption();
+			} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+				logClear();
+	    		logError(e.getMessage() + "\n");
+	    		e.printStackTrace();
+				_backuping = false;
+				notifyListerners_ioOperationEnd();
+				return ;
+			}
+			
 			notifyListerners_ioOperationStart();
 			logClear();
 			
@@ -278,7 +297,7 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 			notifyListeners_ioOperationCountSrcFilesDone();
 			
 			for (int i = 0; i < _properties.size(); ++i) {
-				_properties.get(i).backup(true);
+				_properties.get(i).backup(true, encryption);
 			}
 
 			_backuping = false;
@@ -296,4 +315,12 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 		}
 	}
 	
+	public Encryption getEncryption() throws NoSuchAlgorithmException, NoSuchPaddingException {
+		for (int i = 0; i < _properties.size(); ++i) {
+			if (_properties.get(i).getEncryption()) {
+		        return new Encryption(_encryptionUI.askEncryptionKey());
+			}
+		}
+		return null;
+	}	
 }

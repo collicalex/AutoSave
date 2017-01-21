@@ -4,10 +4,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channel;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+
+import javax.crypto.NoSuchPaddingException;
 
 public class Property {
 	
@@ -15,6 +24,7 @@ public class Property {
 	private String _dst = "";
 	private boolean _recur = true;
 	private List<String> _ignored;
+	private boolean _encryption = false;
 	
 	private List<PropertyListener> _listeners;
 	
@@ -91,7 +101,10 @@ public class Property {
 		if (pos == -1) return ;
 		String key = str.substring(0, pos);
 		String value = str.substring(pos+1);
-		
+		this.add(key, value);
+	}
+	
+	public void add(String key, String value) throws IOException {
 		if (key.compareTo("src") == 0) {
 			setSource(value);
 		} else if (key.compareTo("dst") == 0) {
@@ -100,9 +113,11 @@ public class Property {
 			setRecursive(value);
 		} else if (key.compareTo("ignore") == 0) {
 			addToIgnoreList(value);
+		} else if (key.compareTo("encryption") == 0) {
+			setEncryption(value);
 		} else {
 			throw new IOException("Wrong property key '" + key + "'");
-		}
+		}	
 	}
 	
 	private String isNull(String value) {
@@ -136,6 +151,17 @@ public class Property {
 		setRecursive(str2bool(value));
 	}
 	
+	public void setEncryption(boolean value) {
+		if (value != _encryption) {
+			_encryption = value;
+			notifyListerners_propertyUpdate();
+		}
+	}	
+	
+	private void setEncryption(String value) throws IOException {
+		setEncryption(str2bool(value));
+	}
+	
 	public void addToIgnoreList(String value) {
 		if (_ignored.contains(value) == false) {
 			_ignored.add(value);
@@ -160,6 +186,10 @@ public class Property {
 	
 	public boolean getRecursive() {
 		return _recur;
+	}
+	
+	public boolean getEncryption() {
+		return _encryption;
 	}
 	
 	public boolean isIgnored(String path) {
@@ -192,6 +222,7 @@ public class Property {
 		sb.append("src=" + this.getSource() + "\n");
 		sb.append("dst=" + this.getDestination() + "\n");
 		sb.append("recur=" + bool2str(this.getRecursive()) + "\n");
+		sb.append("encryption=" + this.getEncryption() + "\n");
 		for (String ignored : _ignored) {
 			sb.append("ignore=" + ignored + "\n");	
 		}
@@ -222,12 +253,28 @@ public class Property {
 		_totalSrcFiles = 0;
 	}
 	
-	synchronized public void backup(boolean countSrcFileAlreadyDone) {
+	synchronized public void backup() {
+		this.backup(false, null);
+	}
+	
+	synchronized public void backup(boolean countSrcFileAlreadyDone, Encryption encryption) {
 		if (_backuping == true) {
 			System.err.println("ALREADY BACKUPING???!!!");
 		} else {
 			_backuping = true;
 			notifyListerners_ioOperationStart();
+			
+			if (encryption == null) {
+				try {
+					encryption = _properties.getEncryption();
+				} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+		    		_properties.logError(e.getMessage() + "\n");
+		    		e.printStackTrace();
+					_backuping = false;
+					notifyListerners_ioOperationEnd();
+					return ;
+				}
+			}
 			
 			_totalBackupedSrcFiles = 0;
 			
@@ -235,7 +282,17 @@ public class Property {
 				countSrcFile(_src.length());
 			}
 			
-			save_files(new File(_src), new File(_dst));
+			
+			if (_encryption) {
+				_properties.logEncryptionUsed();
+			}
+			
+			try {
+				save_files(new File(_src), new File(_dst), encryption);
+			} catch (IOException e) {
+				_properties.logError(e.getMessage() + "\n");
+				e.printStackTrace();
+			}
 			
 			_backuping = false;
 			notifyListerners_ioOperationEnd();
@@ -307,7 +364,7 @@ public class Property {
 		}
 	}
 	
-	private void save_files(File src, File dst) {
+	private void save_files(File src, File dst, Encryption encryption) throws IOException {
 		
 	    if (isIgnored(src.getAbsolutePath())) {
 	    	_properties.logSave(src.getAbsolutePath());
@@ -326,9 +383,10 @@ public class Property {
 			    if (isIgnored(f.getAbsolutePath())) {
 			    	_properties.logSkip(f.getAbsolutePath());
 			    } else {
-			    	File file_dst = new File(sd.dst.getPath(), f.getName());
+			    	String dstFilename = (encryption != null) ? Encryption.caesarCipherEncrypt(f.getName()) : f.getName();
+			    	File file_dst = new File(sd.dst.getPath(), dstFilename);
 			    	if (f.isFile()) {
-						copy_file(f, file_dst, maxPathLength);
+						copy_file(f, file_dst, maxPathLength, encryption);
 			    	} else if (f.isDirectory() && _recur) {
 						dirs.add(new SrcDst(f, file_dst));
 					}
@@ -338,8 +396,7 @@ public class Property {
 	}
 	
     // Copies src file to dst file.
-    @SuppressWarnings("resource")
-	private void copy_file(File src, File dst, long maxPathLength) {
+	private void copy_file(File src, File dst, long maxPathLength, Encryption encryption) {
 	    if (isIgnored(src.getAbsolutePath())) {
 	    	_properties.logSkip(src.getAbsolutePath());
 	    	return;
@@ -365,25 +422,64 @@ public class Property {
 
     	dst.getParentFile().mkdirs();
     	
-    	FileChannel srcChannel = null;
-    	FileChannel dstChannel = null;
+    	
+		InputStream fis = null;
+		OutputStream fos = null;
+		OutputStream cfos = null;
+    	ReadableByteChannel inputChannel = null;
+    	WritableByteChannel outputChannel = null;
     	
     	try {
-    		srcChannel = new FileInputStream(src).getChannel();
-    		dstChannel = new FileOutputStream(dst).getChannel();
-    		dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
+			fis = new FileInputStream(src);
+			fos = new FileOutputStream(dst);
+    		
+    		if (encryption != null) {
+    			cfos = encryption.encrypt(fos);
+        		inputChannel = Channels.newChannel(fis);
+        		outputChannel = Channels.newChannel(cfos);
+    		} else {
+        		inputChannel = Channels.newChannel(fis);
+        		outputChannel = Channels.newChannel(fos);
+    		}
+    		
+    		fastChannelCopy(inputChannel, outputChannel);
+    		
     	} catch (Exception e) {
     		_properties.logError(e.getMessage() + "\n");
     		e.printStackTrace();
     	} finally {
-    		closeChannel(srcChannel);
-    		closeChannel(dstChannel);
+    		close(inputChannel);
+    		close(outputChannel);
+    		close(fis);
+    		close(fos);
+    		close(cfos);
     	}
     	
     	_totlaNewFilesSaved++;
-    }	
-
-	private void closeChannel(FileChannel channel) {
+    }
+    
+    
+    //https://thomaswabner.wordpress.com/2007/10/09/fast-stream-copy-using-javanio-channels/
+    private void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
+    	final ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024);
+    	while (src.read(buffer) != -1) {
+    		// prepare the buffer to be drained
+    		buffer.flip();
+    		// write to the channel, may block
+    		dest.write(buffer);
+    		// If partial transfer, shift remainder down
+    		// If buffer is empty, same as doing clear()
+    		buffer.compact();
+    	}
+    	// EOF will leave buffer in fill state
+    	buffer.flip();
+    	// make sure the buffer is fully drained.
+    	while (buffer.hasRemaining()) {
+    		dest.write(buffer);
+    	}
+	}    
+    
+	private void close(Channel channel) {
 		if (channel != null) {
 			try {
 				channel.close();
@@ -393,8 +489,29 @@ public class Property {
 			}
 		}
     }
+	
+	private void close(InputStream stream) {
+		if (stream != null) {
+			try {
+				stream.close();
+			} catch (IOException e) {
+				_properties.logError(e.getMessage() + "\n");
+				e.printStackTrace();
+			}
+		}
+	}
 
-
+	private void close(OutputStream stream) {
+		if (stream != null) {
+			try {
+				stream.close();
+			} catch (IOException e) {
+				_properties.logError(e.getMessage() + "\n");
+				e.printStackTrace();
+			}
+		}
+	}
 
 
 }
+

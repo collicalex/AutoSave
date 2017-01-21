@@ -157,8 +157,6 @@ public class About extends JDialog {
 			int offsetX = (int)(0.5 + (getWidth() - Logo.getInstance().getLogo().getWidth(null)) / 2.);
 			int offsetY = (int)(0.5 + (getHeight() - Logo.getInstance().getLogo().getHeight(null)) / 2.);
 			
-			System.out.println(offsetX + " " + offsetY);
-			
 			g2d.drawImage(Logo.getInstance().getLogo(), offsetX, offsetY, null);
 		}
 

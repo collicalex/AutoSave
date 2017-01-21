@@ -63,6 +63,13 @@ public class LoggerAdapter implements Logger {
 			_logger.logCountValue(value);
 		}
 	}
+	
+	@Override
+	public void logEncryptionUsed() {
+		if (_logger != null) {
+			_logger.logEncryptionUsed();
+		}
+	}
 
 	
 }

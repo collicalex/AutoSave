@@ -96,7 +96,6 @@ public class Gui {
             }
         });
         
-        
         _jFrame.setContentPane(splitPane);
         _jFrame.setIconImage(Logo.getInstance().getIcon());
         _jFrame.pack();
@@ -120,6 +119,6 @@ public class Gui {
 			listener.applicationClosing();
 		}
 	}
-
+	
 }
 

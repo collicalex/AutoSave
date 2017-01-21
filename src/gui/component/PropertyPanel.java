@@ -42,6 +42,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 	private JComboBox<Boolean> _recur;
 	private DefaultListModel<String> _ignoredListModel;
 	private JList<String> _ignoredList;
+	private JComboBox<Boolean> _crypt;
 	
 	private JButton _deleteButton;
 	private JButton _srcBrowseButton;
@@ -64,6 +65,15 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			public void actionPerformed(ActionEvent e) {
 				_listen = false;
 				_property.setRecursive((Boolean)_recur.getSelectedItem());
+				_listen = true;
+			}
+		});
+		
+		_crypt = new JComboBox<Boolean>(new Boolean[]{true, false});
+		_crypt.addActionListener (new ActionListener () {
+			public void actionPerformed(ActionEvent e) {
+				_listen = false;
+				_property.setEncryption((Boolean)_crypt.getSelectedItem());
 				_listen = true;
 			}
 		});
@@ -118,7 +128,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			public void actionPerformed(ActionEvent e) {
 				(new Thread() {
 					public void run() {
-						_property.backup(false);
+						_property.backup();
 					}
 				}).start();
 			}
@@ -138,6 +148,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 		components.add(createPanel("Destination", _dst, _dstBrowseButton));
 		components.add(createPanel("Recursive", _recur, null));
 		components.add(createPanelIgnoredList());
+		components.add(createPanel("Encryption", _crypt, null));
 		components.add(createPanel("Progress", _progressBar, _backupButton));
 		
 		this.setLayout(new BorderLayout());
@@ -242,6 +253,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			_src.notifyListeners();
 			_dst.setText(property.getDestination());
 			_recur.setSelectedItem(property.getRecursive());
+			_crypt.setSelectedItem(property.getEncryption());
 			_ignoredListModel.removeAllElements();
 			for (String ignored : property.getIgnoredList()) {
 				_ignoredListModel.addElement(ignored);
@@ -283,6 +295,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 		_src.setEnabled(enabled);
 		_dst.setEnabled(enabled);
 		_recur.setEnabled(enabled);
+		_crypt.setEnabled(enabled);
 		_deleteButton.setEnabled(enabled);
 		_srcBrowseButton.setEnabled(enabled);
 		_dstBrowseButton.setEnabled(enabled);
