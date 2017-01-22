@@ -1,12 +1,8 @@
-import java.io.IOException;
-
-import core.Encryption;
 import gui.Gui;
 
 
 //TODO: CODE
 //TODO: Use sonar analysis
-//TODO: use password field (but not the standard one, which is max 10 length)!
 
 //TODO: FEATURES
 //TODO: Option (action) to retrieve lost file from local computer into the backup
@@ -21,18 +17,6 @@ import gui.Gui;
 public class Main {
 	
 	public static void main(String[] args) {
-		/*
-		try {
-			String str = "Ceci est un test très très long. Et une autre phrase! Avec encore un autre bout de phrase :p";
-			String enc = Encryption.caesarCipherEncrypt(str);
-			String dec = Encryption.caesarCipherDecrypte(enc);
-			System.out.println(str);
-			System.out.println(enc);
-			System.out.println(dec);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		*/
 		new Gui();
 	}
 }

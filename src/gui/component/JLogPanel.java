@@ -153,6 +153,7 @@ public class JLogPanel extends JTable implements Logger {
 		this.log(Action.EMPTY, "");		
 		this.log(Action.ENCRYPTION, "Encryption will be used to save files");	
 	}
+
 	
 	//-------------------------------------------------------------------------
 	//-- Specific types--------------------------------------------------------

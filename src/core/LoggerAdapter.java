@@ -70,6 +70,4 @@ public class LoggerAdapter implements Logger {
 			_logger.logEncryptionUsed();
 		}
 	}
-
-	
 }

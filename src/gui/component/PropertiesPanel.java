@@ -54,9 +54,9 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	
 	public PropertiesPanel(Logger logger) {
 		_default = new File("autosave.ini");
+		_logger = logger;
 		
 		JPanel configPanel = createConfigPanel();
-		_logger = logger;
 		_listeners = new LinkedList<PropertiesPanelListener>();
 		
 		_contentPanel = new JPanel();
@@ -89,6 +89,7 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 		
 		this.setPreferredSize(new Dimension(400,600));
 	}
+
 	
 	//-------------------------------------------------------------------------
 	//-- Listeners
