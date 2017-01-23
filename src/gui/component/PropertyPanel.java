@@ -1,21 +1,17 @@
 package gui.component;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -28,6 +24,7 @@ import javax.swing.border.EmptyBorder;
 import core.Property;
 import core.PropertyListener;
 import gui.GuiUtils;
+import net.miginfocom.swing.MigLayout;
 
 public class PropertyPanel extends JPanel implements PropertyListener, JTextField2Listener {
 	
@@ -51,6 +48,8 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 	private JButton _addToIgnoreListButton;
 	private JButton _removeFromIgnoreListButton;
 	
+	private JButton _restoreButton;
+	
 	private JProgressBar _progressBar;
 	
 	private boolean _listen = true;
@@ -68,6 +67,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 				_listen = true;
 			}
 		});
+		_recur.setRenderer(new YesNoBooleanCellRenderer());
 		
 		_crypt = new JComboBox<Boolean>(new Boolean[]{true, false});
 		_crypt.addActionListener (new ActionListener () {
@@ -77,6 +77,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 				_listen = true;
 			}
 		});
+		_crypt.setRenderer(new YesNoBooleanCellRenderer());
 		
 		
 		_deleteButton = new JButton("X");
@@ -121,7 +122,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			}
 		});	
 		
-		_backupButton = new JButton("Run backup");
+		_backupButton = new JButton("Backup");
 		_backupButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -133,6 +134,9 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 				}).start();
 			}
 		});
+		
+		_restoreButton = new JButton("Restore");
+		_backupButton.setPreferredSize(_restoreButton.getPreferredSize());
 
 		_progressBar = new JProgressBar();
 		_progressBar.setMinimum(0);
@@ -142,59 +146,16 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 		
 		_entry = new JLabel("Entry:");
 		
-		List<JComponent> components = new LinkedList<JComponent>();
-		components.add(createPanel(_entry, null, _deleteButton));
-		components.add(createPanel("Source", _src, _srcBrowseButton));
-		components.add(createPanel("Destination", _dst, _dstBrowseButton));
-		components.add(createPanel("Recursive", _recur, null));
-		components.add(createPanelIgnoredList());
-		components.add(createPanel("Encryption", _crypt, null));
-		components.add(createPanel("Progress", _progressBar, _backupButton));
-		
-		this.setLayout(new BorderLayout());
-		this.add(GuiUtils.stackNorth(components), BorderLayout.NORTH);
-		
-		_property = property;
-		this.propertyUpdate(property);
-		_property.addListener(this);
-	}
-	
-	private JPanel createPanel(String caption, JComponent component, JButton button) {
-		JLabel label = new JLabel(caption + ":");
-		label.setPreferredSize(new Dimension(75, 1));
-		return createPanel(label, component, button);
-	}
-	
-	private JPanel createPanel(JLabel label, JComponent component, JButton button) {
-		if (component == null) {
-			GuiUtils.setBold(label);
-		}
-		
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.add(label, BorderLayout.WEST);
-		if (component != null) {
-			panel.add(component, BorderLayout.CENTER);	
-		}
-		if (button != null) {
-			panel.add(button, BorderLayout.EAST);
-		}
-		return panel;
-	}
-	
-	private JPanel createPanelIgnoredList() {
 		_ignoredListModel = new DefaultListModel<String>();
 		
 		_ignoredList = new JList<String>(_ignoredListModel);
 		_ignoredList.setVisibleRowCount(1);
-		JScrollPane scrollPane = new JScrollPane(_ignoredList);
-		
-		JLabel label = new JLabel("Ignored:");
-		label.setPreferredSize(new Dimension(75, 20));
-		JPanel labelPanel = new JPanel(new BorderLayout());
-		labelPanel.add(label, BorderLayout.NORTH);
 		
 		_addToIgnoreListButton = new JButton("+");
 		_removeFromIgnoreListButton = new JButton("-");
+		
+		_addToIgnoreListButton.setPreferredSize(_srcBrowseButton.getPreferredSize());
+		_removeFromIgnoreListButton.setPreferredSize(_srcBrowseButton.getPreferredSize());
 		
 		_addToIgnoreListButton.addActionListener(new ActionListener() {
 			
@@ -232,19 +193,60 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 				_property.removeFromIgnoreList(_ignoredList.getSelectedValue());
 			}
 		});
+
 		
-		JPanel buttonsPanel = new JPanel(new GridLayout(2, 1));
-		buttonsPanel.add(_addToIgnoreListButton);
-		buttonsPanel.add(_removeFromIgnoreListButton);
-		JPanel buttonsPanelNorth = new JPanel(new BorderLayout());
-		buttonsPanelNorth.add(buttonsPanel, BorderLayout.NORTH);
+		this.setLayout(new MigLayout("fillx", "[][grow, fill][fill]", "[]0[]"));
+		//--
+		this.add(GuiUtils.setBold(_entry));
+		this.add(_deleteButton, "skip 1, wrap");
+		//--
+		this.add(GuiUtils.setBold(new JLabel("Source:")));
+		this.add(_src);
+		this.add(_srcBrowseButton, "wrap");
+		//--
+		this.add(GuiUtils.setBold(new JLabel("Destination:")));
+		this.add(_dst);
+		this.add(_dstBrowseButton, "wrap");
+		//--
+		this.add(GuiUtils.setBold(new JLabel("Recursive:")));
+		this.add(_recur, "span, wrap");
+		//--
+		this.add(GuiUtils.setBold(new JLabel("Ignored:")));
+		this.add(new JScrollPane(_ignoredList), "height 50");
+		this.add(_addToIgnoreListButton, "wrap, id myid");
+		this.add(_removeFromIgnoreListButton, "pos myid.x myid.y2");
+		//--
+		this.add(GuiUtils.setBold(new JLabel("Encryption:")));
+		this.add(_crypt, "span, wrap");
+		//--
+		this.add(GuiUtils.setBold(new JLabel("Progress:")));
+		this.add(_progressBar, "span, wrap");
+		//--
 		
-		JPanel contentPanel = new JPanel(new BorderLayout());
-		contentPanel.add(labelPanel, BorderLayout.WEST);
-		contentPanel.add(scrollPane, BorderLayout.CENTER);
-		contentPanel.add(buttonsPanelNorth, BorderLayout.EAST);
-		return contentPanel;
+		this.add(GuiUtils.setBold(new JLabel("Action:")));
+		this.add(_backupButton, "span, split 2");
+		this.add(_restoreButton);
+
+		_property = property;
+		this.propertyUpdate(property);
+		_property.addListener(this);
 	}
+	
+	private class YesNoBooleanCellRenderer extends DefaultListCellRenderer {
+		private static final long serialVersionUID = 2070768274356412077L;
+
+		@Override
+		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			if (Boolean.TRUE.equals(value)) { 
+	             value = "Yes";
+	          } else if (Boolean.FALSE.equals(value)) {
+	             value = "No";
+	          }
+			
+			return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+		}
+	}
+
 	
 	@Override
 	public void propertyUpdate(Property property) {

@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,8 +12,10 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -33,6 +33,7 @@ import core.PropertiesListener;
 import core.Property;
 import gui.GuiListener;
 import gui.GuiUtils;
+import net.miginfocom.swing.MigLayout;
 
 public class PropertiesPanel extends JPanel implements PropertiesListener, GuiListener, EncryptionUI {
 
@@ -52,6 +53,8 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	
 	private File _default;
 	
+	private JScrollPane _scrollPane;
+	
 	public PropertiesPanel(Logger logger) {
 		_default = new File("autosave.ini");
 		_logger = logger;
@@ -60,10 +63,11 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 		_listeners = new LinkedList<PropertiesPanelListener>();
 		
 		_contentPanel = new JPanel();
-		JPanel hackPanel = new JPanel(new BorderLayout());
-		hackPanel.add(_contentPanel, BorderLayout.NORTH);
-		JScrollPane scrollPane = new JScrollPane(hackPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		_contentPanel.setLayout(new BoxLayout(_contentPanel, BoxLayout.Y_AXIS));
+
+		_scrollPane = new JScrollPane(_contentPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		_scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
 		
 		_backupAllButton = new JButton("Backup All");
 		_backupAllButton.addActionListener(new ActionListener() {
@@ -78,10 +82,11 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 			}
 		});
 		
-
+		
+		
 		this.setLayout(new BorderLayout());
 		this.add(configPanel, BorderLayout.NORTH);
-		this.add(scrollPane, BorderLayout.CENTER);
+		this.add(_scrollPane, BorderLayout.CENTER);
 		this.add(_backupAllButton, BorderLayout.SOUTH);
 		
 		setProperties(new Properties(this));
@@ -246,29 +251,35 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 		}
 	}
 	
-	
 	private void rebuildPanel() {
 		_contentPanel.removeAll();
-		_contentPanel.setLayout(new FlowLayout());
+		int height = 0;
 		
 		if (_properties != null) {
-			_contentPanel.setLayout(new GridLayout(_properties.size() + 1, 1));
+			List<JComponent> cmps = new LinkedList<JComponent>();
 			for (int i = 0; i < _properties.size(); ++i) {
-				_contentPanel.add(new PropertyPanel(_properties.get(i)));
+				PropertyPanel pp = new PropertyPanel(_properties.get(i));
+				cmps.add(pp);
+				height += pp.getPreferredSize().height;
 			}
-			_contentPanel.add(createNewEntryPanel());
+			JPanel nep = createNewEntryPanel();
+			cmps.add(nep);
+			height += nep.getPreferredSize().height;
+			
+			_contentPanel.add(GuiUtils.stackNorth(cmps));
 		}
-		_contentPanel.revalidate();		
+		
+		_contentPanel.setPreferredSize(new Dimension(1, height)); //Hack because ScrollPanelLayout is bugged and can't compute this height alone!
+		
+		_contentPanel.revalidate();
 	}
+	
 
 	private JPanel createNewEntryPanel() {
-		JLabel label = new JLabel("Add a backup entry");
-		Font f = label.getFont();
-		label.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
+		JPanel panel = new JPanel(new MigLayout("fillx", "[][grow, fill][fill]", "[]0[]"));
+		panel.add(GuiUtils.setBold(new JLabel("Add a backup entry")));
 		
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.add(label, BorderLayout.WEST);
-
+		
 		_newEntryButton = new JButton("+");
 		_newEntryButton.addActionListener(new ActionListener() {
 			@Override
@@ -278,14 +289,9 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 			}
 		});
 		
-		panel.add(_newEntryButton, BorderLayout.EAST);
-		
-		JPanel hackPanel = new JPanel(new BorderLayout());
-		hackPanel.add(panel, BorderLayout.NORTH);
-		
-		hackPanel.setBorder(new EmptyBorder(5, 5, 10, 5));
-		
-		return hackPanel;
+		panel.add(_newEntryButton, "skip 1, wrap");
+
+		return panel;
 	}
 	
 	private boolean isSaveNeeded() {

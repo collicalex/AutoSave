@@ -46,8 +46,9 @@ public class GuiUtils {
 		return first;
 	}    
 	
-	public static void setBold(JLabel label) {
+	public static JLabel setBold(JLabel label) {
 		Font f = label.getFont();
 		label.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
+		return label;
 	}
 }

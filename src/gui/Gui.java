@@ -87,7 +87,7 @@ public class Gui {
 		
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, propertiesPanel, rightPanel);
         splitPane.setContinuousLayout(true);
-
+        
         _jFrame = new JFrame("AutoSave");
         _jFrame.addWindowListener(new WindowAdapter() {
             @Override
