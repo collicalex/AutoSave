@@ -20,6 +20,9 @@ import javax.crypto.NoSuchPaddingException;
 
 public class Property {
 	
+	public static int MODE_BACKUP = 0;
+	public static int MODE_RESTORE = 1;
+	
 	private String _src = "";
 	private String _dst = "";
 	private boolean _recur = true;
@@ -28,7 +31,7 @@ public class Property {
 	
 	private List<PropertyListener> _listeners;
 	
-	private boolean _backuping = false;
+	private boolean _inIOoperation = false;
 	
 	private Properties _properties;
 	
@@ -253,15 +256,21 @@ public class Property {
 		_totalSrcFiles = 0;
 	}
 	
+	//-------------------------------------------------------------------------
+	
 	synchronized public void backup() {
-		this.backup(false, null);
+		ioOperation(false, null, MODE_BACKUP);
+	}
+
+	synchronized public void restore() {
+		ioOperation(false, null, MODE_RESTORE);
 	}
 	
-	synchronized public void backup(boolean countSrcFileAlreadyDone, Encryption encryption) {
-		if (_backuping == true) {
-			System.err.println("ALREADY BACKUPING???!!!");
+	synchronized public void ioOperation(boolean countSrcFileAlreadyDone, Encryption encryption, int mode) {
+		if (_inIOoperation == true) {
+			System.err.println("ALREADY IO OPERATION???!!!");
 		} else {
-			_backuping = true;
+			_inIOoperation = true;
 			notifyListerners_ioOperationStart();
 			
 			if (encryption == null) {
@@ -270,7 +279,7 @@ public class Property {
 				} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
 		    		_properties.logError(e.getMessage() + "\n");
 		    		e.printStackTrace();
-					_backuping = false;
+					_inIOoperation = false;
 					notifyListerners_ioOperationEnd();
 					return ;
 				}
@@ -279,7 +288,11 @@ public class Property {
 			_totalBackupedSrcFiles = 0;
 			
 			if (countSrcFileAlreadyDone == false) {
-				countSrcFile(_src.length());
+				if (mode == Property.MODE_BACKUP) {
+					countSrcFile(_src.length());
+				} else if (mode == Property.MODE_RESTORE) {
+					countSrcFile(_dst.length());
+				}
 			}
 			
 			
@@ -288,13 +301,17 @@ public class Property {
 			}
 			
 			try {
-				save_files(new File(_src), new File(_dst), encryption);
+				if (mode == MODE_BACKUP) {
+					save_files(new File(_src), new File(_dst), encryption, mode);
+				} else if (mode == MODE_RESTORE) {
+					save_files(new File(_dst), new File(_src), encryption, mode);
+				}
 			} catch (IOException e) {
 				_properties.logError(e.getMessage() + "\n");
 				e.printStackTrace();
 			}
 			
-			_backuping = false;
+			_inIOoperation = false;
 			notifyListerners_ioOperationEnd();
 		}
 	}
@@ -364,7 +381,7 @@ public class Property {
 		}
 	}
 	
-	private void save_files(File src, File dst, Encryption encryption) throws IOException {
+	private void save_files(File src, File dst, Encryption encryption, int mode) throws IOException {
 		
 	    if (isIgnored(src.getAbsolutePath())) {
 	    	_properties.logSave(src.getAbsolutePath());
@@ -383,10 +400,10 @@ public class Property {
 			    if (isIgnored(f.getAbsolutePath())) {
 			    	_properties.logSkip(f.getAbsolutePath());
 			    } else {
-			    	String dstFilename = (encryption != null) ? Encryption.caesarCipherEncrypt(f.getName()) : f.getName();
+			    	String dstFilename = (encryption != null) ? (mode == Property.MODE_BACKUP) ? Encryption.caesarCipherEncrypt(f.getName()) : Encryption.caesarCipherDecrypt(f.getName())  : f.getName();
 			    	File file_dst = new File(sd.dst.getPath(), dstFilename);
 			    	if (f.isFile()) {
-						copy_file(f, file_dst, maxPathLength, encryption);
+						copy_file(f, file_dst, maxPathLength, encryption, mode);
 			    	} else if (f.isDirectory() && _recur) {
 						dirs.add(new SrcDst(f, file_dst));
 					}
@@ -396,7 +413,7 @@ public class Property {
 	}
 	
     // Copies src file to dst file.
-	private void copy_file(File src, File dst, long maxPathLength, Encryption encryption) {
+	private void copy_file(File src, File dst, long maxPathLength, Encryption encryption, int mode) {
 	    if (isIgnored(src.getAbsolutePath())) {
 	    	_properties.logSkip(src.getAbsolutePath());
 	    	return;
@@ -424,6 +441,7 @@ public class Property {
     	
     	
 		InputStream fis = null;
+		InputStream cfis = null;
 		OutputStream fos = null;
 		OutputStream cfos = null;
     	ReadableByteChannel inputChannel = null;
@@ -434,9 +452,15 @@ public class Property {
 			fos = new FileOutputStream(dst);
     		
     		if (encryption != null) {
-    			cfos = encryption.encrypt(fos);
-        		inputChannel = Channels.newChannel(fis);
-        		outputChannel = Channels.newChannel(cfos);
+    			if (mode == Property.MODE_BACKUP) {
+    				cfos = encryption.encrypt(fos);
+    				inputChannel = Channels.newChannel(fis);
+    				outputChannel = Channels.newChannel(cfos);
+    			} else if (mode == Property.MODE_RESTORE) {
+    				cfis = encryption.decrypt(fis);
+    				inputChannel = Channels.newChannel(cfis);
+    				outputChannel = Channels.newChannel(fos);
+    			}
     		} else {
         		inputChannel = Channels.newChannel(fis);
         		outputChannel = Channels.newChannel(fos);
@@ -452,7 +476,12 @@ public class Property {
     		close(outputChannel);
     		close(fis);
     		close(fos);
+    		close(cfis);    		
     		close(cfos);
+    	}
+    	
+    	if (dst.setLastModified(src.lastModified()) ==  false) {
+    		System.err.println("Unable to set the lastModifier datetime");
     	}
     	
     	_totlaNewFilesSaved++;

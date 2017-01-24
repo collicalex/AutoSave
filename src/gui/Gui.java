@@ -3,6 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -87,6 +88,8 @@ public class Gui {
 		
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, propertiesPanel, rightPanel);
         splitPane.setContinuousLayout(true);
+        propertiesPanel.setMinimumSize(new Dimension(0,0));
+        rightPanel.setMinimumSize(new Dimension(0,0));
         
         _jFrame = new JFrame("AutoSave");
         _jFrame.addWindowListener(new WindowAdapter() {

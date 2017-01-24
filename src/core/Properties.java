@@ -20,7 +20,7 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 	private File _srcFile;
 	private EncryptionUI _encryptionUI;
 	
-	private boolean _backuping = false;
+	private boolean _inIOoperation = false;
 	private boolean _simulationOnly = false;
 	
 	public Properties(EncryptionUI encryptionUI) {
@@ -205,7 +205,7 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 
 	@Override
 	public void ioOperationStart(Property property) {
-		if (_backuping == false) {
+		if (_inIOoperation == false) {
 			reinitTotalSrcFiles();
 			notifyListerners_ioOperationStart();
 			logClear();
@@ -224,7 +224,7 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 	
 	@Override
 	public void ioOperationCountSrcFilesDone(Property property) {
-		if (_backuping == false) {
+		if (_inIOoperation == false) {
 			notifyListeners_ioOperationCountSrcFilesDone();
 		}
 	}
@@ -232,7 +232,7 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 
 	@Override
 	public void ioOperationEnd(Property property) {
-		if (_backuping == false) {
+		if (_inIOoperation == false) {
 			notifyListerners_ioOperationEnd();
 		}		
 	}
@@ -273,10 +273,18 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 	}
 	
 	synchronized public void backup() {
-		if (_backuping == true) {
-			System.err.println("ALREADY BACKUPING???!!!");
+		ioOperation(Property.MODE_BACKUP);
+	}
+	
+	synchronized public void restore() {
+		ioOperation(Property.MODE_RESTORE);
+	}
+	
+	private void ioOperation(int mode) {
+		if (_inIOoperation == true) {
+			System.err.println("ALREADY IO OPERATION???!!!");
 		} else {
-			_backuping = true;
+			_inIOoperation = true;
 			
 			Encryption encryption = null;
 			try {
@@ -285,7 +293,7 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 				logClear();
 	    		logError(e.getMessage() + "\n");
 	    		e.printStackTrace();
-				_backuping = false;
+				_inIOoperation = false;
 				notifyListerners_ioOperationEnd();
 				return ;
 			}
@@ -297,10 +305,10 @@ public class Properties extends LoggerAdapter implements PropertyListener {
 			notifyListeners_ioOperationCountSrcFilesDone();
 			
 			for (int i = 0; i < _properties.size(); ++i) {
-				_properties.get(i).backup(true, encryption);
+				_properties.get(i).ioOperation(true, encryption, mode);
 			}
 
-			_backuping = false;
+			_inIOoperation = false;
 			notifyListerners_ioOperationEnd();
 		}
 	}

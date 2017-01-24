@@ -136,6 +136,19 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 		});
 		
 		_restoreButton = new JButton("Restore");
+		_restoreButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				(new Thread() {
+					public void run() {
+						_property.restore();
+					}
+				}).start();
+			}
+		});
+		
+		
 		_backupButton.setPreferredSize(_restoreButton.getPreferredSize());
 
 		_progressBar = new JProgressBar();
@@ -302,6 +315,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 		_srcBrowseButton.setEnabled(enabled);
 		_dstBrowseButton.setEnabled(enabled);
 		_backupButton.setEnabled(enabled);
+		_restoreButton.setEnabled(enabled);
 		_addToIgnoreListButton.setEnabled(enabled);
 		_removeFromIgnoreListButton.setEnabled(enabled);
 		_ignoredList.setEnabled(enabled);

@@ -115,7 +115,7 @@ public class Encryption {
 		return tmp.toString().replaceAll("/", "é"); //maybe encode all b64 by string replacement?
 	}
 	
-	public static String caesarCipherDecrypte(String secret) throws IOException {
+	public static String caesarCipherDecrypt(String secret) throws IOException {
 		secret = secret.replaceAll("é", "/"); //maybe decode all b64 by string replacement?
 		int offset = getB64Value(secret.charAt(0));
 		offset = 65 - (offset%65);
