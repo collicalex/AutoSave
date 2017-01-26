@@ -187,6 +187,26 @@ public class Property {
 		return _dst;
 	}
 	
+	public String getSource(int mode) {
+		if (mode == MODE_BACKUP) {
+			return _src;
+		} else if (mode == MODE_RESTORE) {
+			return _dst;
+		} else {
+			return null;
+		}
+	}
+	
+	public String getDestination(int mode) {
+		if (mode == MODE_BACKUP) {
+			return _dst;
+		} else if (mode == MODE_RESTORE) {
+			return _src;
+		} else {
+			return null;
+		}
+	}
+	
 	public boolean getRecursive() {
 		return _recur;
 	}
@@ -288,11 +308,7 @@ public class Property {
 			_totalBackupedSrcFiles = 0;
 			
 			if (countSrcFileAlreadyDone == false) {
-				if (mode == Property.MODE_BACKUP) {
-					countSrcFile(_src.length());
-				} else if (mode == Property.MODE_RESTORE) {
-					countSrcFile(_dst.length());
-				}
+				countFile(getSource(mode));
 			}
 			
 			
@@ -301,11 +317,7 @@ public class Property {
 			}
 			
 			try {
-				if (mode == MODE_BACKUP) {
-					save_files(new File(_src), new File(_dst), encryption, mode);
-				} else if (mode == MODE_RESTORE) {
-					save_files(new File(_dst), new File(_src), encryption, mode);
-				}
+				save_files(new File(getSource(mode)), new File(getDestination(mode)), encryption, mode);
 			} catch (IOException e) {
 				_properties.logError(e.getMessage() + "\n");
 				e.printStackTrace();
@@ -316,9 +328,13 @@ public class Property {
 		}
 	}
 	
-	synchronized public void countSrcFile(long maxSrcPathLength) {
-		_properties.logCountLabel(_src, maxSrcPathLength);
-		_totalSrcFiles = nb_files(new File(_src));
+	synchronized public void countFile(String dir) {
+		countFile(dir, dir.length());
+	}
+	
+	synchronized public void countFile(String dir, long maxPathLength) {
+		_properties.logCountLabel(dir, maxPathLength);
+		_totalSrcFiles = nb_files(new File(dir));
 		_properties.logCountValue(_totalSrcFiles);
 		notifyListerners_ioOperationCountSrcFilesDone();
 	}
@@ -400,13 +416,19 @@ public class Property {
 			    if (isIgnored(f.getAbsolutePath())) {
 			    	_properties.logSkip(f.getAbsolutePath());
 			    } else {
-			    	String dstFilename = (encryption != null) ? (mode == Property.MODE_BACKUP) ? Encryption.caesarCipherEncrypt(f.getName()) : Encryption.caesarCipherDecrypt(f.getName())  : f.getName();
-			    	File file_dst = new File(sd.dst.getPath(), dstFilename);
-			    	if (f.isFile()) {
-						copy_file(f, file_dst, maxPathLength, encryption, mode);
-			    	} else if (f.isDirectory() && _recur) {
-						dirs.add(new SrcDst(f, file_dst));
-					}
+			    	try {
+				    	String dstFilename = (encryption != null) ? (mode == Property.MODE_BACKUP) ? Encryption.caesarCipherEncrypt2(f.getName()) : Encryption.caesarCipherDecrypt2(f.getName())  : f.getName();
+				    	//String dstFilename = (encryption != null) ? (mode == Property.MODE_BACKUP) ? encryption.encrypt(f.getName()) : encryption.decrypt(f.getName())  : f.getName();
+			    		//String dstFilename = f.getName();
+				    	File file_dst = new File(sd.dst.getPath(), dstFilename);
+				    	if (f.isFile()) {
+							copy_file(f, file_dst, maxPathLength, encryption, mode);
+				    	} else if (f.isDirectory() && _recur) {
+							dirs.add(new SrcDst(f, file_dst));
+						}
+			    	} catch (Exception e) {
+			    		e.printStackTrace();
+			    	}
 			    }
 			}
 		}

@@ -7,13 +7,17 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Base64;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -27,8 +31,15 @@ public class Encryption {
 	private Cipher _cipher;
 	
 	public Encryption(String keyString) throws NoSuchAlgorithmException, NoSuchPaddingException {
+		Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+		
 		_keySpec = generateSecretKey(keyString);
-		_cipher = Cipher.getInstance("AES/GCM/NOPADDING");
+		try {
+			_cipher = Cipher.getInstance("AES/GCM/NOPADDING", "BC");
+		} catch (NoSuchProviderException e) {
+			_cipher = Cipher.getInstance("AES/GCM/NOPADDING");
+		}
+
 	}
 	
 	private SecretKeySpec generateSecretKey(String keyString) throws NoSuchAlgorithmException {
@@ -46,6 +57,10 @@ public class Encryption {
 		return new GCMParameterSpec(iv.length, iv);
 	}
 	
+	//-------------------------------------------------------------------------
+	//-- File content encryption
+	//-------------------------------------------------------------------------
+	
 	public OutputStream encrypt(OutputStream os) throws IOException, InvalidKeyException, InvalidAlgorithmParameterException {
         byte[] iv = new byte[128];
         new SecureRandom().nextBytes(iv);
@@ -62,6 +77,29 @@ public class Encryption {
 		_cipher.init(Cipher.DECRYPT_MODE, _keySpec, getInitializationVector(iv));
 		return new CipherInputStream(is, _cipher);
 	}
+	
+	//-------------------------------------------------------------------------
+	//-- Filename encryption
+	//-------------------------------------------------------------------------
+	
+	public String encrypt(String str) throws InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
+		byte[] iv = new byte[32];
+		for (int i = 0; i < iv.length; ++i) {
+			iv[i] = (byte)i;
+		}
+		_cipher.init(Cipher.ENCRYPT_MODE, _keySpec, getInitializationVector(iv));
+		return caesarCipherEncrypt(_cipher.doFinal(str.getBytes()));
+	}
+	
+	public String decrypt(String str) throws IOException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+		byte[] iv = new byte[32];
+		for (int i = 0; i < iv.length; ++i) {
+			iv[i] = (byte)i;
+		}
+		_cipher.init(Cipher.DECRYPT_MODE, _keySpec, getInitializationVector(iv));
+		return new String(_cipher.doFinal(caesarCipherDecrypt(str)));
+	}
+
 	
 	//--------------------------------------------------------
 	
@@ -101,9 +139,21 @@ public class Encryption {
 		}
 	}
 	
-	public static String caesarCipherEncrypt(String plain) throws IOException {
-		int offset = (plain.length() % 65);
-		String b64encoded = Base64.getEncoder().encodeToString(plain.getBytes());
+	public static String caesarCipherEncrypt2(String plain) throws IOException {
+		return caesarCipherEncrypt(plain.getBytes());
+	}
+	
+	public static String caesarCipherDecrypt2(String secret) throws IOException {
+		return new String(caesarCipherDecrypt(secret));
+	}
+	
+	public static String caesarCipherEncrypt(byte[] plain) throws IOException {
+		int offset = plain.length;
+		for (int i = 0; i< plain.length; ++i) {
+			offset += (char)plain[i];
+		}
+		offset = offset % 65;
+		String b64encoded = Base64.getEncoder().encodeToString(plain);
 		String reverse = new StringBuffer(b64encoded).reverse().toString();
 		StringBuilder tmp = new StringBuilder();
 		tmp.append(getB64Char(offset));
@@ -115,7 +165,7 @@ public class Encryption {
 		return tmp.toString().replaceAll("/", "é"); //maybe encode all b64 by string replacement?
 	}
 	
-	public static String caesarCipherDecrypt(String secret) throws IOException {
+	public static byte[] caesarCipherDecrypt(String secret) throws IOException {
 		secret = secret.replaceAll("é", "/"); //maybe decode all b64 by string replacement?
 		int offset = getB64Value(secret.charAt(0));
 		offset = 65 - (offset%65);
@@ -127,6 +177,6 @@ public class Encryption {
 		}
 		String reversed = new StringBuffer(tmp.toString()).reverse().toString();
 		reversed = reversed.replaceAll("é", "/");
-		return new String(Base64.getDecoder().decode(reversed));
+		return Base64.getDecoder().decode(reversed);
 	}	
 }
