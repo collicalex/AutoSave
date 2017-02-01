@@ -418,7 +418,7 @@ public class Property {
 			    } else {
 			    	try {
 				    	//String dstFilename = (encryption != null) ? (mode == Property.MODE_BACKUP) ? Encryption.caesarCipherEncrypt2(f.getName()) : Encryption.caesarCipherDecrypt2(f.getName())  : f.getName();
-				    	String dstFilename = (encryption != null) ? (mode == Property.MODE_BACKUP) ? encryption.encrypt(f.getName()) : encryption.decrypt(f.getName())  : f.getName();
+				    	String dstFilename = (encryption != null) ? (mode == Property.MODE_BACKUP) ? encryption.encrypt(f.getName(), f) : encryption.decrypt(f.getName())  : f.getName();
 			    		//String dstFilename = f.getName();
 				    	File file_dst = new File(sd.dst.getPath(), dstFilename);
 				    	if (f.isFile()) {

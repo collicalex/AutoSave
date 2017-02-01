@@ -1,11 +1,14 @@
 package core;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
@@ -22,34 +25,38 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.bouncycastle.crypto.generators.SCrypt;
+
 //Tutorial: http://stackoverflow.com/a/5520786
 //Tutorial: https://www.flexiprovider.de/examples/ExampleCrypt.html
 //Why AES?: http://www.javamex.com/tutorials/cryptography/ciphers.shtml
+
+//Scrypt parameters: http://stackoverflow.com/questions/11126315/what-are-optimal-scrypt-work-factors
 public class Encryption {
 
-	private SecretKeySpec _keySpec;
+	private SecretKeySpec _keySpecContent;
+	private SecretKeySpec _keySpecFilename;
 	private Cipher _cipherContent;
 	private Cipher _cipherFname;
 	
 	public Encryption(String keyString) throws NoSuchAlgorithmException, NoSuchPaddingException {
 		Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-		_keySpec = generateSecretKeyContent(keyString);
+		String salt = "?,.;/!§!%ùµ*£$¨^+=°)àç_è-('\"é&²~#{[|`\\^@]}";
+		_keySpecContent = generateSecretKeyContent(keyString, salt);
+		_keySpecFilename = generateSecretKeyContent(keyString, new StringBuilder(salt).reverse().toString());
 		
 		try {
 			_cipherContent = Cipher.getInstance("AES/GCM/NOPADDING", "BC");
-			_cipherFname = Cipher.getInstance("AES/ECB/PKCS5Padding", "BC");
+			//_cipherFname = Cipher.getInstance("AES/CTR/PKCS5Padding", "BC");
+			_cipherFname = Cipher.getInstance("AES/GCM/NOPADDING", "BC");
 		} catch (NoSuchProviderException e) {
 			e.printStackTrace();
 		}
 
 	}
 	
-	private SecretKeySpec generateSecretKeyContent(String keyString) throws NoSuchAlgorithmException {
-		//Hash keyString with SHA-256 and crop the output to 128-bit for key
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        digest.update(keyString.getBytes());
-        byte[] key = new byte[16]; //8bit par byte, 128bits --> 16 bytes
-        System.arraycopy(digest.digest(), 0, key, 0, key.length);
+	private SecretKeySpec generateSecretKeyContent(String keyString, String salt) throws NoSuchAlgorithmException {
+        byte[] key = SCrypt.generate(keyString.getBytes(), salt.getBytes(), 2^20, 8, 1, 16); //16 bytes length as we want 128bit length key (8 bit per byte, 128/8=16)
         SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
         return keySpec;
 	}
@@ -68,7 +75,7 @@ public class Encryption {
         byte[] iv = new byte[128];
         new SecureRandom().nextBytes(iv);
 		os.write(iv); //The IV can be saved clearly, it has no impact into the security, it just need to be unique and not predictable
-		_cipherContent.init(Cipher.ENCRYPT_MODE, _keySpec, getInitializationVector(iv));
+		_cipherContent.init(Cipher.ENCRYPT_MODE, _keySpecContent, getInitializationVector(iv));
 		return new CipherOutputStream(os, _cipherContent);
 	}
 	
@@ -77,7 +84,7 @@ public class Encryption {
 		if (is.read(iv) != iv.length) { //just read back the IV from the content
 			throw new IOException("Unable to retrieve IV vector from input stream");
 		}
-		_cipherContent.init(Cipher.DECRYPT_MODE, _keySpec, getInitializationVector(iv));
+		_cipherContent.init(Cipher.DECRYPT_MODE, _keySpecContent, getInitializationVector(iv));
 		return new CipherInputStream(is, _cipherContent);
 	}
 	
@@ -86,14 +93,68 @@ public class Encryption {
 	//-- It use ECB mode which does not need an Initialization Vector (IV)
 	//-------------------------------------------------------------------------
 	
-	public String encrypt(String str) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException  {
-		_cipherFname.init(Cipher.ENCRYPT_MODE, _keySpec);
-        return caesarCipherEncrypt(_cipherFname.doFinal(str.getBytes()));
+	private byte[] longToBytes(long l) {
+	    byte[] result = new byte[8];
+	    for (int i = 7; i >= 0; i--) {
+	        result[i] = (byte)(l & 0xFF);
+	        l >>= 8;
+	    }
+	    return result;
 	}
 	
-	public String decrypt(String str) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
-		_cipherFname.init(Cipher.DECRYPT_MODE, _keySpec);
-		return new String(_cipherFname.doFinal(caesarCipherDecrypt(str)));
+	public String encrypt(String str, File original) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidAlgorithmParameterException  {
+		
+		byte[] IV = new byte[]{0, 0, 0, 0, 0, 0, 0, 0};
+		
+	    try {
+	    	BasicFileAttributes attr = Files.readAttributes(original.toPath(), BasicFileAttributes.class);
+	    	FileTime ft = attr.creationTime();
+	    	IV = longToBytes(ft.toMillis());
+	    } catch (IOException e) {
+	    	System.out.println("oops error! " + e.getMessage());
+	    }
+        
+	    byte[] iv = new byte[128];
+	    int j = 0;
+	    for (int i = 0; i < iv.length; ++i) {
+	    	iv[i] = IV[j];
+	    	if (++j == IV.length) {
+	    		j = 0;
+	    	}
+	    }
+	    
+	    _cipherFname.init(Cipher.ENCRYPT_MODE, _keySpecFilename, getInitializationVector(iv));
+	    byte[] crypted = _cipherFname.doFinal(str.getBytes());
+	    
+	    byte[] result = new byte[IV.length + crypted.length];
+	    System.arraycopy(IV, 0, result, 0, IV.length);
+	    System.arraycopy(crypted, 0, result, IV.length, crypted.length);
+		
+	    return Base64.getEncoder().encodeToString(result).replaceAll("/", "é");
+	    
+        //return caesarCipherEncrypt(result);
+	}
+	
+	public String decrypt(String str) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidAlgorithmParameterException {
+		//byte[] result = caesarCipherDecrypt(str);
+		byte[] result = Base64.getDecoder().decode(str.replaceAll("é", "/"));
+		byte[] IV = new byte[]{0, 0, 0, 0, 0, 0, 0, 0};
+		byte[] crypted = new byte[result.length - IV.length];
+		
+		System.arraycopy(result, 0, IV, 0, IV.length);
+		System.arraycopy(result, IV.length, crypted, 0, crypted.length);
+		
+	    byte[] iv = new byte[128];
+	    int j = 0;
+	    for (int i = 0; i < iv.length; ++i) {
+	    	iv[i] = IV[j];
+	    	if (++j == IV.length) {
+	    		j = 0;
+	    	}
+	    }		
+		
+		_cipherFname.init(Cipher.DECRYPT_MODE, _keySpecFilename, getInitializationVector(iv));
+		return new String(_cipherFname.doFinal(crypted));
 	}
 
 	
