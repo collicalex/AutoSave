@@ -450,10 +450,9 @@ public class Property {
     		}
     	}
     	
-    	notifyListerners_ioOperationOneFileNew();
-    	
     	if (_properties.isSimulationOnly()) {
     		_properties.logSimu(src.getAbsolutePath(), dst.getAbsolutePath(), maxPathLength);
+    		notifyListerners_ioOperationOneFileNew();
     		return ;
     	} else {
     		_properties.logCopy(src.getAbsolutePath(), dst.getAbsolutePath(), maxPathLength);
@@ -490,6 +489,8 @@ public class Property {
     		
     		fastChannelCopy(inputChannel, outputChannel);
     		
+    		_totlaNewFilesSaved++;
+    		notifyListerners_ioOperationOneFileNew();
     	} catch (Exception e) {
     		_properties.logError(e.getMessage() + "\n");
     		e.printStackTrace();
@@ -503,10 +504,8 @@ public class Property {
     	}
     	
     	if (dst.setLastModified(src.lastModified()) ==  false) {
-    		System.err.println("Unable to set the lastModifier datetime");
+    		_properties.logError("Unable to set the lastModifier datetime" + "\n");
     	}
-    	
-    	_totlaNewFilesSaved++;
     }
     
     

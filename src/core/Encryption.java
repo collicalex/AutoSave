@@ -47,7 +47,6 @@ public class Encryption {
 		
 		try {
 			_cipherContent = Cipher.getInstance("AES/GCM/NOPADDING", "BC");
-			//_cipherFname = Cipher.getInstance("AES/CTR/PKCS5Padding", "BC");
 			_cipherFname = Cipher.getInstance("AES/GCM/NOPADDING", "BC");
 		} catch (NoSuchProviderException e) {
 			e.printStackTrace();
@@ -69,6 +68,7 @@ public class Encryption {
 	//---------------------------------------------------------------------------
 	//-- File content encryption
 	//-- It use GCM mode which need an Initialization Vector (IV) (stronger mode)
+	//-- IV is purely random
 	//---------------------------------------------------------------------------
 	
 	public OutputStream encrypt(OutputStream os) throws IOException, InvalidKeyException, InvalidAlgorithmParameterException {
@@ -90,7 +90,8 @@ public class Encryption {
 	
 	//-------------------------------------------------------------------------
 	//-- Filename encryption
-	//-- It use ECB mode which does not need an Initialization Vector (IV)
+	//-- It use GCM mode which need an Initialization Vector (IV) (stronger mode)
+	//-- IV is file creation time (I suppose that 2 files cannot be create at the same millisecond time!
 	//-------------------------------------------------------------------------
 	
 	private byte[] longToBytes(long l) {
@@ -103,7 +104,6 @@ public class Encryption {
 	}
 	
 	public String encrypt(String str, File original) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidAlgorithmParameterException  {
-		
 		byte[] IV = new byte[]{0, 0, 0, 0, 0, 0, 0, 0};
 		
 	    try {
@@ -130,14 +130,12 @@ public class Encryption {
 	    System.arraycopy(IV, 0, result, 0, IV.length);
 	    System.arraycopy(crypted, 0, result, IV.length, crypted.length);
 		
-	    return Base64.getEncoder().encodeToString(result).replaceAll("/", "é");
-	    
-        //return caesarCipherEncrypt(result);
+	    return encodeOffset248(result);
 	}
 	
 	public String decrypt(String str) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidAlgorithmParameterException {
-		//byte[] result = caesarCipherDecrypt(str);
-		byte[] result = Base64.getDecoder().decode(str.replaceAll("é", "/"));
+		byte[] result = decodeOffset248(str);
+		
 		byte[] IV = new byte[]{0, 0, 0, 0, 0, 0, 0, 0};
 		byte[] crypted = new byte[result.length - IV.length];
 		
@@ -156,8 +154,36 @@ public class Encryption {
 		_cipherFname.init(Cipher.DECRYPT_MODE, _keySpecFilename, getInitializationVector(iv));
 		return new String(_cipherFname.doFinal(crypted));
 	}
-
 	
+	//--------------------------------------------------------
+	//-- Byte encoding (used Offset248 instead of Base64)
+	//-- see: https://github.com/diafygi/Offset248
+	//--------------------------------------------------------
+
+	public String encodeOffset248(byte[] input) {
+	    StringBuffer result = new StringBuffer(input.length);
+	    for (int i = 0; i < input.length; ++i) {
+	    	int v248 = (char)(input[i]) + 248;
+	    	result.appendCodePoint(v248);
+	    }
+	    return result.toString();
+	}
+	
+	public byte[] decodeOffset248(String input) {
+		byte[] result = new byte[input.codePointCount(0, input.length())];
+		
+		for(int cp, j = 0, i = 0; i < input.length(); i += Character.charCount(cp)) {
+			cp = input.codePointAt(i);
+			result[j++] = (byte)(cp - 248);
+		}
+
+		return result;
+	}	
+	
+	
+	//--------------------------------------------------------
+	//-- String obfuscation
+	//-- Base64 encoding + rotation
 	//--------------------------------------------------------
 	
 	private static int getB64Value(char c) throws IOException {
@@ -188,7 +214,7 @@ public class Encryption {
 		} else if (v == 62) {
 			return '+';
 		} else if (v == 63) {
-			return '/'; // must be '/'
+			return '/';
 		} else if (v == 64) {
 			return '=';
 		} else {
@@ -196,21 +222,13 @@ public class Encryption {
 		}
 	}
 	
-	public static String caesarCipherEncrypt2(String plain) throws IOException {
-		return caesarCipherEncrypt(plain.getBytes());
-	}
-	
-	public static String caesarCipherDecrypt2(String secret) throws IOException {
-		return new String(caesarCipherDecrypt(secret));
-	}
-	
-	public static String caesarCipherEncrypt(byte[] plain) throws IOException {
-		int offset = plain.length;
-		for (int i = 0; i< plain.length; ++i) {
-			offset += (char)plain[i];
+	public static String caesarCipherEncrypt(String plain) throws IOException {
+		int offset = plain.length();
+		for (int i = 0; i< plain.length(); ++i) {
+			offset += (char)plain.charAt(i);
 		}
 		offset = offset % 65;
-		String b64encoded = Base64.getEncoder().encodeToString(plain);
+		String b64encoded = Base64.getEncoder().encodeToString(plain.getBytes());
 		String reverse = new StringBuffer(b64encoded).reverse().toString();
 		StringBuilder tmp = new StringBuilder();
 		tmp.append(getB64Char(offset));
@@ -222,7 +240,7 @@ public class Encryption {
 		return tmp.toString().replaceAll("/", "é"); //maybe encode all b64 by string replacement?
 	}
 	
-	public static byte[] caesarCipherDecrypt(String secret) throws IOException {
+	public static String caesarCipherDecrypt(String secret) throws IOException {
 		secret = secret.replaceAll("é", "/"); //maybe decode all b64 by string replacement?
 		int offset = getB64Value(secret.charAt(0));
 		offset = 65 - (offset%65);
@@ -234,6 +252,6 @@ public class Encryption {
 		}
 		String reversed = new StringBuffer(tmp.toString()).reverse().toString();
 		reversed = reversed.replaceAll("é", "/");
-		return Base64.getDecoder().decode(reversed);
+		return new String(Base64.getDecoder().decode(reversed));
 	}	
 }
