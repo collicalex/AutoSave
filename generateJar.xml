@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="create_run_jar" name="Create Runnable Jar for Project AutoSave with libraries in sub-folder">
+<project default="create_run_jar" name="Create Runnable Jar for Project AutoSave">
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="C:/Users/Alexandre/workspace"/>
+    <property name="dir.jarfile" value="${dir.buildfile}"/>
     <target name="create_run_jar">
-        <jar destfile="AutoSave.jar">
+        <jar destfile="${dir.jarfile}/AutoSave.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="Main"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="bin"/>
+            <fileset dir="${dir.jarfile}/bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.jarfile}/lib/jna.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.jarfile}/lib/miglayout-4.0-swing.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${dir.jarfile}/lib/bcprov-ext-jdk15on-153.jar"/>
         </jar>
     </target>
 </project>

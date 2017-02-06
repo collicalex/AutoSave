@@ -129,7 +129,7 @@ public class Encryption {
 	    byte[] result = new byte[IV.length + crypted.length];
 	    System.arraycopy(IV, 0, result, 0, IV.length);
 	    System.arraycopy(crypted, 0, result, IV.length, crypted.length);
-		
+	    
 	    return encodeOffset248(result);
 	}
 	
@@ -154,6 +154,7 @@ public class Encryption {
 		_cipherFname.init(Cipher.DECRYPT_MODE, _keySpecFilename, getInitializationVector(iv));
 		return new String(_cipherFname.doFinal(crypted));
 	}
+
 	
 	//--------------------------------------------------------
 	//-- Byte encoding (used Offset248 instead of Base64)

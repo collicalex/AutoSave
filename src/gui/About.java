@@ -27,7 +27,7 @@ import javax.swing.border.EmptyBorder;
 public class About extends JDialog {
 
 	private static final long serialVersionUID = 1L;
-	private String _version = "v2.0 - 2017-01-07";
+	private String _version = "v3.0 - 2017-02-11";
 
 	public About(Frame frame) {
 		super(frame, "About", true);
