@@ -182,8 +182,8 @@ public class StatsPanel extends JPanel implements PropertiesListener, Properties
 		
 		updateElaspedTime();
 		
-		String message = _nbFilesNewLong + " file" + ((_nbFilesNewLong > 1) ? "s" : "") + " has been saved!";
-		JOptionPane.showMessageDialog(GuiUtils.getOldestParent(this), "Backup done!\n" + message, "AutoSave", JOptionPane.INFORMATION_MESSAGE);
+		String message = _nbFilesNewLong + " file" + ((_nbFilesNewLong > 1) ? "s" : "") + " has been copied!";
+		JOptionPane.showMessageDialog(GuiUtils.getOldestParent(this), "Operation done!\n" + message, "AutoSave", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	private void updateElaspedTime() {

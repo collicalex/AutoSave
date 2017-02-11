@@ -26,7 +26,7 @@ public class Property {
 	private String _src = "";
 	private String _dst = "";
 	private boolean _recur = true;
-	private List<String> _ignored;
+	private List<File> _ignored;
 	private boolean _encryption = false;
 	
 	private List<PropertyListener> _listeners;
@@ -38,7 +38,7 @@ public class Property {
 	public Property(Properties properties) {
 		_properties = properties;
 		_listeners = new LinkedList<PropertyListener>();
-		_ignored = new LinkedList<String>();
+		_ignored = new LinkedList<File>();
 	}
 	
 	//-------------------------------------------------------------------------
@@ -167,7 +167,7 @@ public class Property {
 	
 	public void addToIgnoreList(String value) {
 		if (_ignored.contains(value) == false) {
-			_ignored.add(value);
+			_ignored.add(new File(value));
 			notifyListerners_propertyUpdate();
 		}
 	}
@@ -216,10 +216,10 @@ public class Property {
 	}
 	
 	public boolean isIgnored(String path) {
-		return _ignored.contains(path);
+		return _ignored.contains(new File(path));
 	}
 	
-	public List<String> getIgnoredList() {
+	public List<File> getIgnoredList() {
 		return _ignored;
 	}
 	
@@ -246,8 +246,8 @@ public class Property {
 		sb.append("dst=" + this.getDestination() + "\n");
 		sb.append("recur=" + bool2str(this.getRecursive()) + "\n");
 		sb.append("encryption=" + this.getEncryption() + "\n");
-		for (String ignored : _ignored) {
-			sb.append("ignore=" + ignored + "\n");	
+		for (File ignored : _ignored) {
+			sb.append("ignore=" + ignored.getAbsolutePath() + "\n");	
 		}
 		return sb.toString();
 	}
@@ -286,29 +286,33 @@ public class Property {
 		ioOperation(false, null, MODE_RESTORE);
 	}
 	
-	synchronized public void ioOperation(boolean countSrcFileAlreadyDone, Encryption encryption, int mode) {
+	synchronized public void ioOperation(boolean fromBackupAll, Encryption encryption, int mode) {
 		if (_inIOoperation == true) {
 			System.err.println("ALREADY IO OPERATION???!!!");
 		} else {
 			_inIOoperation = true;
 			notifyListerners_ioOperationStart();
 			
-			if (encryption == null) {
-				try {
-					encryption = _properties.getEncryption();
-				} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-		    		_properties.logError(e.getMessage() + "\n");
-		    		e.printStackTrace();
-					_inIOoperation = false;
-					notifyListerners_ioOperationEnd();
-					return ;
-				}
-			}
-			
 			_totalBackupedSrcFiles = 0;
 			
-			if (countSrcFileAlreadyDone == false) {
+			if (fromBackupAll == false) {
+				if (getEncryption() == true) {
+					try {
+						encryption = _properties.getEncryption();
+					} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+			    		_properties.logError(e.getMessage() + "\n");
+			    		e.printStackTrace();
+						_inIOoperation = false;
+						notifyListerners_ioOperationEnd();
+						return ;
+					}
+				}
+				
 				countFile(getSource(mode));
+			} else {
+				if (getEncryption() == false) {
+					encryption = null;
+				}
 			}
 			
 			

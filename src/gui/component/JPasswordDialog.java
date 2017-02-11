@@ -67,7 +67,7 @@ public class JPasswordDialog extends JDialog implements ActionListener, KeyListe
 		
 		cons.insets = new Insets(10,0,0,0);
 		cons.gridy = 5;
-		contentPanel.add(new JLabel("Be careful : Your password will not be saved anywhere."), cons);
+		contentPanel.add(new JLabel("Be careful : Your secret key will not be saved anywhere."), cons);
 		
 		cons.insets = new Insets(0,0,0,0);
 		cons.gridy = 6;

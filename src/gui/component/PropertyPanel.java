@@ -270,8 +270,8 @@ public class PropertyPanel extends JPanel implements PropertyListener, JTextFiel
 			_recur.setSelectedItem(property.getRecursive());
 			_crypt.setSelectedItem(property.getEncryption());
 			_ignoredListModel.removeAllElements();
-			for (String ignored : property.getIgnoredList()) {
-				_ignoredListModel.addElement(ignored);
+			for (File ignored : property.getIgnoredList()) {
+				_ignoredListModel.addElement(ignored.getAbsolutePath());
 			}
 			_removeFromIgnoreListButton.setEnabled(property.getIgnoredList().size() > 0);
 		}

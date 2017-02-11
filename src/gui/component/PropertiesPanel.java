@@ -2,7 +2,6 @@ package gui.component;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -41,6 +40,7 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 
 	private Properties _properties;
 	private JPanel _contentPanel;
+	private List<PropertyPanel> _propertyPanelList;
 	private JTextField _configFile;
 	private Logger _logger;
 	private JButton _backupAllButton;
@@ -253,6 +253,7 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	
 	private void rebuildPanel() {
 		_contentPanel.removeAll();
+		_propertyPanelList = new LinkedList<PropertyPanel>();
 		int height = 0;
 		
 		if (_properties != null) {
@@ -260,6 +261,7 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 			for (int i = 0; i < _properties.size(); ++i) {
 				PropertyPanel pp = new PropertyPanel(_properties.get(i));
 				cmps.add(pp);
+				_propertyPanelList.add(pp);
 				height += pp.getPreferredSize().height;
 			}
 			JPanel nep = createNewEntryPanel();
@@ -314,10 +316,8 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-		for (Component cmp : _contentPanel.getComponents()) {
-			if (cmp instanceof PropertyPanel) {
-				((PropertyPanel)cmp).setEnabled(enabled);
-			}
+		for (PropertyPanel pp : _propertyPanelList) {
+			pp.setEnabled(enabled);
 		}
 		_backupAllButton.setEnabled(enabled);
 		_loadConfigFile.setEnabled(enabled);
