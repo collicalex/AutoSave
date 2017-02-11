@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="create_run_jar" name="Create Runnable Jar for Project AutoSave">
+<project default="create_run_jar" name="Create Runnable Jar for Project AutoSave with libraries in sub-folder">
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <!--define folder properties-->
@@ -7,15 +7,17 @@
     <property name="dir.workspace" value="C:/Users/Alexandre/workspace"/>
     <property name="dir.jarfile" value="${dir.buildfile}"/>
     <target name="create_run_jar">
-        <jar destfile="${dir.jarfile}/AutoSave.jar" filesetmanifest="mergewithoutmain">
+        <jar destfile="${dir.jarfile}/AutoSave.jar">
             <manifest>
                 <attribute name="Main-Class" value="Main"/>
-                <attribute name="Class-Path" value="."/>
+                <attribute name="Class-Path" value=". AutoSave_lib/jna.jar AutoSave_lib/miglayout-4.0-swing.jar AutoSave_lib/bcprov-ext-jdk15on-153.jar"/>
             </manifest>
             <fileset dir="${dir.jarfile}/bin"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.jarfile}/lib/jna.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.jarfile}/lib/miglayout-4.0-swing.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${dir.jarfile}/lib/bcprov-ext-jdk15on-153.jar"/>
         </jar>
+        <delete dir="${dir.jarfile}/AutoSave_lib"/>
+        <mkdir dir="${dir.jarfile}/AutoSave_lib"/>
+        <copy file="${dir.jarfile}/lib/jna.jar" todir="${dir.jarfile}/AutoSave_lib"/>
+        <copy file="${dir.jarfile}/lib/miglayout-4.0-swing.jar" todir="${dir.jarfile}/AutoSave_lib"/>
+        <copy file="${dir.jarfile}/lib/bcprov-ext-jdk15on-153.jar" todir="${dir.jarfile}/AutoSave_lib"/>
     </target>
 </project>
