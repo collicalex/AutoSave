@@ -339,6 +339,7 @@ public class PCloudStorage extends Device implements FileTransfertListener {
 		System.out.println(result);
 	}
 	
+	/*
 	private JSONObject stat(String path) throws IOException {
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("path", path);
@@ -346,6 +347,7 @@ public class PCloudStorage extends Device implements FileTransfertListener {
 		String result = HTTPRequest.request(_url + "/stat", parameters);
 		return new JSONObject(result);
 	}
+	*/
 	
 	private JSONObject listFolder(String path) throws IOException {
 		Map<String, String> parameters = new HashMap<String, String>();

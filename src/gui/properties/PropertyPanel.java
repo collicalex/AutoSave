@@ -36,6 +36,7 @@ import core.properties.Property;
 import core.properties.PropertyListener;
 import gui.Gui;
 import gui.icon.Icon;
+import gui.locationchooser.LocationChooserDialog;
 import gui.utils.GuiUtils;
 import net.miginfocom.swing.MigLayout;
 
@@ -87,8 +88,10 @@ public class PropertyPanel extends JPanel implements PropertyListener, DocumentL
 		_srcBrowseButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO: helper window to select a Device
-				//_src.setText(chooser.getSelectedFile().getAbsolutePath());
+				String newLocation = _gui.chooseLocation();
+				if (newLocation != null) {
+					_src.setText(newLocation);
+				}
 			}
 		});		
 		
@@ -97,8 +100,10 @@ public class PropertyPanel extends JPanel implements PropertyListener, DocumentL
 		_dstBrowseButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO: helper window to select a Device
-				//_dst.setText(chooser.getSelectedFile().getAbsolutePath());
+				String newLocation = _gui.chooseLocation();
+				if (newLocation != null) {
+					_dst.setText(newLocation);
+				}
 			}
 		});	
 		
@@ -149,8 +154,10 @@ public class PropertyPanel extends JPanel implements PropertyListener, DocumentL
 		_addToIgnoreListButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO: Helper to create Pattern
-				//_property.addToIgnoreList(chooser.getSelectedFile().getAbsolutePath());			    	
+				String regexp = _gui.chooseRegexp();
+				if (regexp != null) {
+					_property.addToIgnoreList(regexp);
+				}
 			}
 		});
 		
@@ -399,6 +406,7 @@ public class PropertyPanel extends JPanel implements PropertyListener, DocumentL
 		} else if (e.getSource() == _deleteButton) {
 			int dialogResult = JOptionPane.showConfirmDialog(GuiUtils.getOldestParent(_deleteButton), "Are you sure you want to remove this entry from the configuration file?", "Delete", JOptionPane.YES_NO_OPTION);
 			if(dialogResult == 0) {
+				System.out.println(this);
 				_parent.removeProperty(_property);
 			}
 		} else if (e.getSource() == _backupButton) {

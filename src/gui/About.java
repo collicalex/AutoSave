@@ -1,18 +1,11 @@
 package gui;
 
 import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -20,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import gui.icon.Icon;
+import gui.utils.GuiUtils;
 
 
 public class About extends JDialog {
@@ -60,7 +54,7 @@ public class About extends JDialog {
 		cGitHub.gridx = 1;
 		cGitHub.gridy = 2;
 		cGitHub.fill = GridBagConstraints.HORIZONTAL;
-		contentPanel.add(getWebLabel("Check source and latest release","https://collicalex.github.io/AutoSave/"), cGitHub);
+		contentPanel.add(GuiUtils.setLink(new JLabel("Check source and latest release"),"https://collicalex.github.io/AutoSave/"), cGitHub);
 		
 		GridBagConstraints cAuthor = new GridBagConstraints();
 		cAuthor.gridx = 1;
@@ -73,7 +67,7 @@ public class About extends JDialog {
 		cGitHubRoot.gridx = 1;
 		cGitHubRoot.gridy = 4;
 		cGitHubRoot.fill = GridBagConstraints.HORIZONTAL;
-		contentPanel.add(getWebLabel("Follow me on GitHub (Collicalex)","https://collicalex.github.io/"), cGitHubRoot);
+		contentPanel.add(GuiUtils.setLink(new JLabel("Follow me on GitHub (Collicalex)"),"https://collicalex.github.io/"), cGitHubRoot);
 
 		
 		this.setContentPane(contentPanel);
@@ -99,34 +93,6 @@ public class About extends JDialog {
 		return author;
 	}
 	
-	private JLabel getWebLabel(String caption, final String url) {
-		JLabel flickr = new JLabel(caption);
-		flickr.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		flickr.setForeground(Color.GRAY);
-		flickr.addMouseListener(new MouseAdapter() {
-			
-			@Override
-			public void mouseExited(MouseEvent e) {
-				((JLabel)e.getSource()).setForeground(Color.GRAY);
-			}
-			
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				((JLabel)e.getSource()).setForeground(Color.BLUE);
-			}
-			
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (Desktop.isDesktopSupported()) {
-					try {
-						Desktop.getDesktop().browse(new URI(url));
-					} catch (IOException ee) { 
-					} catch (URISyntaxException e1) {
-					}
-				}
-			}
-		});
-		return flickr;
-	}
+
 	
 }

@@ -254,10 +254,10 @@ public class Copier {
 	//-------------------------------------------------------------------------	
 	
 	//Pattern list can be found here: https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html
-	public static String isIgnored(List<Pattern> ignoredList, String filename) {
+	public static String isIgnored(List<Pattern> ignoredList, String path) {
 		if (ignoredList != null) {
 			for (Pattern p : ignoredList) {
-				Matcher m = p.matcher(filename);
+				Matcher m = p.matcher(path);
 				if (m.matches()) {
 					return p.pattern();
 				}

@@ -8,7 +8,12 @@ import java.awt.LayoutManager;
 import java.io.Serializable;
 
 public class VerticalFlowLayout implements LayoutManager, Serializable {
-	  int _halign;
+	private static final long serialVersionUID = 5252854496670243359L;
+	
+	  /**
+	 * 
+	 */
+	int _halign;
 	  int _valign;
 	  int _hgap;
 	  int _vgap;

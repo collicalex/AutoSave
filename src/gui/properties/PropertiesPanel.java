@@ -148,7 +148,7 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 		if (_configFile.getText().trim().isEmpty() == false) {
 			chooser.setSelectedFile(new File(_configFile.getText()));
 		} else {
-			chooser.setSelectedFile(new File("."));
+			chooser.setSelectedFile(new File("./"));
 		}
 	    chooser.setDialogTitle("Select configuration file");
 	    chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -330,10 +330,11 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 			if (cmp instanceof PropertyPanel) {
 				PropertyPanel pp = (PropertyPanel) cmp;
 				if (pp.isProperty(property)) {
+					System.out.println(pp);
 					pp.stopListeningPropertyChange();
 					_contentPanel.remove(pp);
 					
-					_contentPanel.setPreferredSize(new Dimension(1, 1000));
+					//_contentPanel.setPreferredSize(new Dimension(1, 1000));
 					
 					_contentPanel.revalidate();
 					break ;

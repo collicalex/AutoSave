@@ -29,7 +29,9 @@ import core.device.Device;
 import core.device.LocalStorage;
 import core.device.PCloudStorage;
 import gui.icon.Icon;
+import gui.locationchooser.LocationChooserDialog;
 import gui.properties.PropertiesPanel;
+import gui.regexpbuilder.RegexpBuilderDialog;
 import gui.utils.GuiUtils;
 import gui.utils.SmartScroller;
 
@@ -189,6 +191,29 @@ public class Gui implements CredentialsRequester {
 		PasswordDialog pwdDialog = new PasswordDialog(_jFrame, true, icon, logo, name, multipleProperties);
 		if (pwdDialog.isCredentialsGiven()) {
 			return new Credentials(pwdDialog.getUsername(), pwdDialog.getPassworzd(), pwdDialog.isDefault());
+		} else {
+			return null;
+		}
+	}
+	
+	
+	//-------------------------------------------------------------------------
+	//-- Other
+	//-------------------------------------------------------------------------	
+	
+	public String chooseRegexp() {
+		RegexpBuilderDialog rgb = new RegexpBuilderDialog(_jFrame);
+		if (rgb.isRegexpBuilt()) {
+			return rgb.getRegexp();
+		} else {
+			return null;
+		}
+	}
+	
+	public String chooseLocation() {
+		LocationChooserDialog lcd = new LocationChooserDialog(_jFrame);
+		if (lcd.isLocationChoosen()) {
+			return lcd.getLocationString();
 		} else {
 			return null;
 		}

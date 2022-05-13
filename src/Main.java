@@ -1,8 +1,13 @@
 import gui.Gui;
 
-//TODO: GUI have a helper popup to build the string of a localstorage or PCloudStorage
-//TODO: LogPanl: max lines?
+//TODO: LogPanel: max lines?
 //TODO: In property: "ignore all except"
+
+//TODO: Manage restore
+
+//TODO: Manage crypt
+//TODO: Manage filename obfuscation
+
 
 public class Main {
 	

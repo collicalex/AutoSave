@@ -27,7 +27,6 @@ public class LogPanel extends JTable implements CopierListener {
 	private LoggerTableModel _model;
 	
 	private Font _plainFont = new Font("Consolas", Font.PLAIN, 12);
-	private Font _boldFont = new Font("Consolas", Font.BOLD, 12);
 	
 	private Object _sourceEvent;
 	
