@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project AutoSave with libraries in sub-folder">
+    <target name="create_run_jar">
+        <jar destfile="./AutoSave.jar">
+            <manifest>
+                <attribute name="Main-Class" value="Main"/>
+            </manifest>
+            <fileset dir="./bin"/>
+			<zipgroupfileset  dir="./lib" />
+        </jar>
+    </target>
+</project>
