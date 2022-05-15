@@ -169,6 +169,8 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 				JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				e.printStackTrace();
 			}
+		} else {
+			propertiesLoad(properties, file);
 		}
 	}
 	
@@ -301,6 +303,8 @@ public class PropertiesPanel extends JPanel implements PropertiesListener, GuiLi
 		}
 		_configFile.setText(file.getAbsolutePath());
 		_contentPanel.removeAll();
+		_contentPanel.add(_newEntryPanel);
+		_contentPanel.revalidate();
 		_properties = properties;
 	}
 
