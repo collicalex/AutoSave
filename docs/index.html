@@ -1,0 +1,318 @@
+<html>
+<head>
+	<title>AutoSave</title>
+	<link rel="stylesheet" type="text/css" href="../style.css">
+	<script src="../script.js"></script> 
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+</head>
+<body>
+<script>
+	writeHeader();
+	writeProjectCover();
+</script>
+
+<div id='content'>
+
+
+	<!-- Description -->
+	<h2>Description</h2>
+	<p>AutoSave is a simple <a href='https://en.wikipedia.org/wiki/Portable_application'>portable application</a> to automatically save (backup) your computer files to your external storage drive or to your online cloud storage. For now it support the follwing cloud services:
+	<ul>
+	<li><a href='https://www.pcloud.com'><img src='img/pcloud.png' /> pCloud</a></li>
+	</ul></p>
+	<p>It does only <a href='https://en.wikipedia.org/wiki/Incremental_backup'>incremental backup</a>: all new files will be saved; but files which do not more exist on your local computer will not be deleted from the backup (usb drive).</p> 
+
+
+	<script>
+		writeDownloadSection();
+		writeJavaPreRequirementSection();
+	</script>
+	
+
+	
+	<!-- How it works? -->
+	<h2>How to use it</h2>
+
+	<div class="slideshow-container" style="width:939px;">
+	 
+		<div class='slideshow-images' style="height:800px;">
+		
+			<div class="slide">
+				<img src="img/tuto1.png" style="width:100%">
+				<div class="slide-text"><b>1 / 42</b><br>At first run, nothing is configured.</div>
+			</div>
+
+			<div class="slide">
+				<img src="img/tuto2.png" style="width:100%">
+				<div class="slide-text"><b>2 / 42</b><br>To configure a new folder or file to backup, use the <font color='red'>+</font> button.</div>
+			</div>
+
+			<div class="slide">
+				<img src="img/tuto3.png" style="width:100%">
+				<div class="slide-text"><b>3 / 42</b><br>A new empty entry is created.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto4.png" style="width:100%">
+				<div class="slide-text"><b>4 / 42</b><br>Click on the <font color='red'>...</font> button of the <font color='red'>source</font> line to define a new folder to backup.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto5.png" style="width:100%">
+				<div class="slide-text"><b>5 / 42</b><br>It will popup an helper window to configure a new location (by default it's the current folder).</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto6.png" style="width:100%">
+				<div class="slide-text"><b>6 / 42</b><br>Use the <font color='red'>Choose location</font> button to select a new folder to backup.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto7.png" style="width:100%">
+				<div class="slide-text"><b>7 / 42</b><br>Here I've selected my "Photos" folder to backup. Click on the <font color='red'>Ok</font> button to set this source. It will close the helper popup windows.</div>
+			</div>
+
+			<div class="slide">
+				<img src="img/tuto8.png" style="width:100%">
+				<div class="slide-text"><b>8 / 42</b><br><br>The source location is defined.<br>Note that the <font color='red'>display name</font> of the entry, is the name of the selected source directory (here it's "Photos").</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto9.png" style="width:100%">
+				<div class="slide-text"><b>9 / 42</b><br><br>Click on the <font color='red'>...</font> button of the <font color='red'>destination</font> line to define the location where to backup your source.</div>
+			</div>
+
+			<div class="slide">
+				<img src="img/tuto10.png" style="width:100%">
+				<div class="slide-text"><b>10 / 42</b><br><br>As from source, it popup an helper window to configure a new location.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto11.png" style="width:100%">
+				<div class="slide-text"><b>11 / 42</b><br><br>Use the <font color='red'>Choose location</font> button to select a new destination folder where to save your source folder.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto12.png" style="width:100%">
+				<div class="slide-text"><b>12 / 42</b><br><br>Here I've choosen the root of my USB key, which is on F: letter.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto13.png" style="width:100%">
+				<div class="slide-text"><b>13 / 42</b><br><br>The problem with removable usb disk, is that the next time you plug it, it can be assigned to another drive letter.<br>To overcome this problem, you can choose to define the drive location by its <font color='red'>Drive Name</font>.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto14.png" style="width:100%">
+				<div class="slide-text"><b>14 / 42</b><br><br>Click on the <font color='red'>Ok</font> button to set this destination. It will close the helper popup windows.</div>
+			</div>
+
+			<div class="slide">
+				<img src="img/tuto15.png" style="width:100%">
+				<div class="slide-text"><b>15 / 42</b><br><br>The source location is defined.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto16.png" style="width:100%">
+				<div class="slide-text"><b>16 / 42</b><br><br>You can defined to include or not sub folders into the backup by select the Yes/No value of the <font color='red'>Recursive</font> option.</div>
+			</div>
+
+			<div class="slide">
+				<img src="img/tuto17.png" style="width:100%">
+				<div class="slide-text"><b>17 / 42</b><br><br>You can also define to exclude some file or folder to the backup. As it's based on <a href='https://en.wikipedia.org/wiki/Regular_expression'>regular expression</a> which can be complex to define, an helper builder must be used by clicking on the <font color='red'>+</font> button.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto18.png" style="width:100%">
+				<div class="slide-text"><b>18 / 42</b><br><br>In the helper window you can use the 2 first input to build the regular expression which will be displayed in the third input.<br>You can also directly type your own expression into this third input.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto19.png" style="width:100%">
+				<div class="slide-text"><b>19 / 42</b><br><br>Here I've used the 2 first input to ask to exlude all files with extension <i>.bmp</i> into a subfolder named <i>test</i>.<br>Note that the corresponding regular expression can be hard to understand.</div>
+			</div>
+
+			<div class="slide">
+				<img src="img/tuto20.png" style="width:100%">
+				<div class="slide-text"><b>20 / 42</b><br><br>As you can type your own regular expression directly in the third input, you can select a file to test the expression by selecting it with the <font color='red'>...</font> button.</div>
+			</div>
+
+			<div class="slide">
+				<img src="img/tuto21.png" style="width:100%">
+				<div class="slide-text"><b>21 / 42</b><br><br>Here is the result of a corresponding file.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto22.png" style="width:100%">
+				<div class="slide-text"><b>22 / 42</b><br><br>And here is the result of a not corresponding file (the bmp file is not into a "test" subfolder).</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto23.png" style="width:100%">
+				<div class="slide-text"><b>23 / 42</b><br><br>Then click on the <font color='red'>Ok</font> button to add the regular expression to the list of ignoring expression.</div>
+			</div>
+
+			<div class="slide">
+				<img src="img/tuto24.png" style="width:100%">
+				<div class="slide-text"><b>24 / 42</b><br><br>Here I've defined only bmp files to be excluded.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto25.png" style="width:100%">
+				<div class="slide-text"><b>25 / 42</b><br><br>You can obviously defined multiple expressions to be ignored.</div>
+			</div>
+
+			<div class="slide">
+				<img src="img/tuto26.png" style="width:100%">
+				<div class="slide-text"><b>26 / 42</b><br><br>You can remove an expression by selecting it and click on the <font color='red'>-</font> button.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto27.png" style="width:100%">
+				<div class="slide-text"><b>27 / 42</b><br><br>You can add a nice icon in front of the name, by clicking on the name.</div>
+			</div>
+
+			<div class="slide">
+				<img src="img/tuto28.png" style="width:100%">
+				<div class="slide-text"><b>28 / 42</b><br><br>It will popup a file chooser, to select a 16x16 image.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto29.png" style="width:100%">
+				<div class="slide-text"><b>29 / 42</b><br><br>Here is my beautifull Photos entry with its icon.</div>
+			</div>	
+			
+			<div class="slide">
+				<img src="img/iconarchive.png" style="width:100%">
+				<div class="slide-text"><b>?? / 42</b><br><br><b>Tip:</b> You can easily find 16x16 image on <a href='https://iconarchive.com/search?q=camera&license=commercialfree&page=1&res=16'>https://iconarchive.com</a>.</div>
+			</div>				
+
+			<div class="slide">
+				<img src="img/tuto30.png" style="width:100%">
+				<div class="slide-text"><b>30 / 42</b><br><br>Here I've added a new backup entry, and use the Location Chosser to define the destination.<br>I use it to define my pCloud location.<br>You can select if your pCloud storage is in Europe or USA, and select the http protocol to use (recommanded to be https).</div>
+			</div>	
+
+			<div class="slide">
+				<img src="img/tuto31.png" style="width:100%">
+				<div class="slide-text"><b>31 / 42</b><br><br>Once all is defined, you can run a backup for only one entry by using the <font color='red'>Backup</font> button bellow it.</div>
+			</div>	
+
+			<div class="slide">
+				<img src="img/tuto32.png" style="width:100%">
+				<div class="slide-text"><b>32 / 42</b><br><br>Or to run the backup for all entries (one by one iteratively) by using the general <font color='red'>Backup All</font> button at the bottom of the window.</div>
+			</div>	
+
+			<div class="slide">
+				<img src="img/tuto33.png" style="width:100%">
+				<div class="slide-text"><b>33 / 42</b><br><br>Here I've run the backup of the first entry (from my HDD to my USB Key).<br>We can notice that one file is ignored (<i>image.bmp</i>) as it matched the ignored regular expression <i>.*\.bmp</i>.<br>Another file (<i>P100003.JPG</i>) is skipped (i.e. not saved again) because it's already saved in the destination (destination modification date is greater or equal than the source modification date).</div>
+			</div>	
+
+			<div class="slide">
+				<img src="img/tuto34.png" style="width:100%">
+				<div class="slide-text"><b>34 / 42</b><br><br>When running for an online service which required authentication, it displays a login window.<br>Note that the login/password you will input are never saved anywhere for security reason.</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto35.png" style="width:100%">
+				<div class="slide-text"><b>35 / 42</b><br><br>As for the previous usb copy, it backup file by ignoring the ones which matched an ignored regepx.</div>
+			</div>	
+
+			<div class="slide">
+				<img src="img/tuto36.png" style="width:100%">
+				<div class="slide-text"><b>36 / 42</b><br><br>Running again the backup on pCloud, still ignored the bmp file; but also skip all files as they are alredy copied previously (and the modification date didn't change).</div>
+			</div>
+			
+			<div class="slide">
+				<img src="img/tuto37.png" style="width:100%">
+				<div class="slide-text"><b>37 / 42</b><br><br>Don't forget to save your configuration, with the <font color='red'>Save</font> button at the top of the window. In case of any modification, when you close the program, it will ask if you want to save it.<br><b>Tip:</b> The program tries to load the "autosave.ini" file by default.</div>
+			</div>				
+
+			<div class="slide">
+				<img src="img/tuto38.png" style="width:100%">
+				<div class="slide-text"><b>38 / 42</b><br><br>Another way to use this tool, is to place it on an USB Key to save your computer's files on this USB Key.<br>Here I will use it to save my compyter <i>Photos</i> folder to be saved on the <i>Photos</i> folder on this usb key.</div>
+			</div>	
+
+			<div class="slide">
+				<img src="img/tuto39.png" style="width:100%">
+				<div class="slide-text"><b>39 / 42</b><br><br>Here I've selected the <i>Photos</i> for the destination directory. By default it used the driver letter as identifier.<br>As previously said, this letter is dynamic and can be not the same in the future.</div>
+			</div>	
+
+			<div class="slide">
+				<img src="img/tuto40.png" style="width:100%">
+				<div class="slide-text"><b>39 / 40</b><br><br>Use the <font color='red'>Relative Path</font> option to defined the path folder relatively of the <i>AutoSave.jar</i> tool.</div>
+			</div>	
+
+			<div class="slide">
+				<img src="img/tuto41.png" style="width:100%">
+				<div class="slide-text"><b>41 / 40</b><br><br>Running the backup will copy all file according the relative path destination.</div>
+			</div>	
+
+			<div class="slide">
+				<img src="img/tuto42.png" style="width:100%">
+				<div class="slide-text"><b>42 / 40</b><br><br>And the copy result.</div>
+			</div>	
+
+		</div>
+		
+		
+	</div>
+
+
+	
+	<h2>File Encryption</h2>
+	
+	<!--
+	<p>Autosave can use encryption to crypt (and decrypt) both file content and filename.</p>
+	
+	<p>It does it via <a href='https://en.wikipedia.org/wiki/Advanced_Encryption_Standard'>AES</a> encryption method (which is fast and secure) in <a href='https://en.wikipedia.org/wiki/Galois/Counter_Mode'>GCM</a> mode. These both mixed together result in an <a href='https://en.wikipedia.org/wiki/Authenticated_encryption'>authenticated encryption</a> algorithm designed to provide both data authenticity (integrity) and confidentiality.</p>
+	-->
+	
+	<p>Autosave encryption had been removed since the last release.</p>
+	<p>To securely encrypted your backup file, you can:
+		<ul>
+		<li>On local storage (usb disck for example)</li>
+			<ul>
+			<li>either use a <a href='https://en.wikipedia.org/wiki/Hardware-based_full_disk_encryption'>hardware encrypted</a> drive which are now not really expensive (<i>see the Western Digital <a href='https://www.wdc.com/products/portable-storage/my-passport.html'>My Passport</a> (<a href='https://www.wdc.com/products/portable-storage/my-passport-for-mac-new.html'>for Mac</a>)</i>)</li>
+			<li>either create a virtual encrypted disk by using <a href='https://www.veracrypt.fr'>VeraCrypt</a></li>
+			</ul>
+		</li>
+		<li>On cloud storage</li>
+			<ul>
+			<li>Just use the encryption mecanism of your cloud provider.</li>
+			</ul>		
+		</ul>
+	</p>
+	
+	<!--
+	<h2>External libraries</h2>
+	
+	<p>Autosave used some external libraries:
+	<ul>
+		<li style='margin-bottom:15px'><a href='https://www.bouncycastle.org/'>Bouncing Castle</a><br>Crypotography library faster than native java (jre) one.</li>
+	
+		<li style='margin-bottom:15px'><a href='https://github.com/diafygi/Offset248'>Offset248</a><br>To save encrypted filename.</li>
+		
+		<li style='margin-bottom:15px'><a href='http://www.miglayout.com'>MigLayout</a><br>A <a href='https://en.wikipedia.org/wiki/Layout_manager'>layout manager</a> library.</li>
+		
+		<li style='margin-bottom:15px'><a href='https://github.com/java-native-access/jna'>Java Native Access (JNA)</a><br>To be able to stop the operating system standby during copy.</li>
+	</ul></p>
+	-->
+	
+	
+<script>
+	writePreFooter();
+</script>
+
+
+
+</div>
+
+
+<script>
+	writeFooter();
+</script>
+
+
+
+</body>
+</html>
